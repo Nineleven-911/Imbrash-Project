@@ -8,7 +8,7 @@ import java.util.Stack
 
 class ExecutionUnit(
     val module: Module,
-    val function: Function
+    val entryPoint: Function
 ) {
     /**
      * Execution Unit for Imbrash Virtual Machine (the IVM)
