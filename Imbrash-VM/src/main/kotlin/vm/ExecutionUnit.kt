@@ -1,6 +1,7 @@
 package hairinne.ip.vm.vm
 
 import hairinne.ip.vm.code.Bytecode
+import hairinne.ip.vm.code.EntryPointNotFoundException
 import hairinne.ip.vm.code.Function
 import hairinne.ip.vm.code.Module
 import hairinne.ip.vm.stack.StackFrame
@@ -22,7 +23,7 @@ class ExecutionUnit(
     fun execute(): ByteArray {
         val code = module.code.slice({
             val res = functions.find { it.id.id == 0L }
-            res?.location?.toRange() ?: throw Exception("No Main Function Found")
+            res?.location?.toRange() ?: throw EntryPointNotFoundException(this, "Entrypoint not found.")
         }.invoke())
         var executing: StackFrame = stack.peek()
 
