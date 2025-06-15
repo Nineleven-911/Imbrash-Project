@@ -8,18 +8,22 @@ import java.util.Stack
 
 class ExecutionUnit(
     val module: Module,
-    val entryPoint: Function
+    val functions: Array<Function>
 ) {
     /**
      * Execution Unit for Imbrash Virtual Machine (the IVM)
      *
-     * @author: Hairinne
-     * @Properties:
+     * Stack-based, Little endian
+     *
+     * @author Hairinne
      */
     val stack: Stack<StackFrame> = Stack()
 
     fun execute(): ByteArray {
-        val code = module.code.toByteArray()
+        val code = module.code.slice({
+            val res = functions.find { it.id.id == 0L }
+            res?.location?.toRange() ?: throw Exception("No Main Function Found")
+        }.invoke())
         var executing: StackFrame = stack.peek()
 
         while (true) {
@@ -34,7 +38,7 @@ class ExecutionUnit(
                     val label: Byte = code[executing.pc++]
 
                     if (label != 0.toByte()) {
-                        for (i in (0 until (1 shl (label - 1))).reversed()) {
+                        for (i in (0 until Bytecode.labelTransfer(label - 1)).reversed()) {
                             stack.peek().operandStack.push(
                                 executing.operandStack.pop()
                             )
@@ -51,3 +55,4 @@ class ExecutionUnit(
         }
     }
 }
+

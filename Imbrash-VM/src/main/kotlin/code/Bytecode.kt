@@ -6,4 +6,11 @@ object Bytecode {
     const val PRT : Byte = 0x02 /* Labels: 0-3 */
     const val RET : Byte = 0x03 /* Labels: 0-4 */
     const val CALL: Byte = 0x04
+
+    fun labelTransfer(label: Byte): Int {
+        return 1 shl label.toInt()
+    }
+    fun labelTransfer(label: Int): Int {
+        return 1 shl label
+    }
 }
