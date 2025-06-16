@@ -1,3 +1,9 @@
+fun projectModule(name: String) {
+    dependencies {
+        implementation(project(name))
+    }
+}
+
 plugins {
     kotlin("jvm")
 }
@@ -11,6 +17,7 @@ repositories {
 
 dependencies {
     testImplementation(kotlin("test"))
+    projectModule(":utils")
 }
 
 tasks.test {

@@ -24,12 +24,16 @@ open class IVMBaseException(
             if (eu.stack.isEmpty()) "[ No Programs In EU ]"
             else eu.stack.peek().operandStack.stack.toList()
         }
+            
+            VM Code:
+              ${eu.module.code}
         """.trimIndent() + "\n" else "\n"
 
     init {
         System.err.println(template)
     }
 }
+
 
 class EntrypointNotFoundException(
     eu: ExecutionUnit,
