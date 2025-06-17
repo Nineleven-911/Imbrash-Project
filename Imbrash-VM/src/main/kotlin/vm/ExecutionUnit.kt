@@ -37,7 +37,7 @@ class ExecutionUnit(
     fun execute() {
         stack.push(StackFrame())
         var executing: StackFrame = stack.peek()
-        // executing.pc = findFunction(0).start
+        // executing.pc = findFunction(0).start // In InfDev mode, the compiler will add an entrypoint, now it's not be needed.
         val code = module.code
 
         while (true) {
