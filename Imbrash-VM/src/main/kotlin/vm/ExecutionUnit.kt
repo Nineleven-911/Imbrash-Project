@@ -5,6 +5,7 @@ import hairinne.ip.vm.code.EntrypointNotFoundException
 import hairinne.ip.vm.code.Function
 import hairinne.ip.vm.code.Module
 import hairinne.ip.vm.stack.StackFrame
+import hairinne.utils.ByteAndLong.LittleEndian.toLong
 
 import java.util.*
 
@@ -33,43 +34,10 @@ class ExecutionUnit(
         throw EntrypointNotFoundException(this, "Function's entrypoint not found")
     }
 
-    /**
-     * Get stack values
-     * @param stack the stack frame
-     * @param size Count of bytes
-     * @return ByteArray
-     */
-    fun getStackValues(stackFrame: StackFrame, size: Int): ByteArray {
-        val arguments = ByteArray(size)
-        for (i in (0 until size).reversed()) {
-            arguments[i] = stackFrame.operandStack.pop()
-        }
-        for (i in arguments) {
-            stackFrame.operandStack.push(i)
-        }
-        return arguments
-    }
-
-    /**
-     * Copy stack values from a to b
-     * @param a StackFrame (From)
-     * @param b StackFrame (To)
-     * @param size Count of bytes
-     */
-    fun copyStackValues(a: StackFrame, b: StackFrame, size: Int) {
-        val arguments = ByteArray(size)
-        for (i in (0 until size).reversed()) {
-            arguments[i] = a.operandStack.pop()
-        }
-        for (i in arguments) {
-            a.operandStack.push(i)
-            b.operandStack.push(i)
-        }
-    }
-
     fun execute() {
+        stack.push(StackFrame())
         var executing: StackFrame = stack.peek()
-        executing.pc = findFunction(0).start
+        // executing.pc = findFunction(0).start
         val code = module.code
 
         while (true) {
@@ -91,7 +59,9 @@ class ExecutionUnit(
                 Bytecode.PRT -> {
                     val label: Byte = code[executing.pc++]
                     require(label in 0 until 4)
-
+                    print(stack.peek().operandStack.getStackValues(
+                        Bytecode.labelTransfer(label)
+                    ).toLong())
                 }
                 Bytecode.RET -> {
                     val label: Byte = code[executing.pc++]
@@ -99,10 +69,16 @@ class ExecutionUnit(
 
                     if (label != 0.toByte()) {
                         val size: Int = Bytecode.labelTransfer(label)
-                        copyStackValues(executing, stack[stack.size - 2], size)
+                        stack.peek().operandStack.copyStackValues(
+                            stack[stack.size - 2].operandStack,
+                            size)
                     }
                     stack.pop()
-                    executing = stack.peek()
+                    if (stack.isEmpty() or (label == 0.toByte())) {
+                        return
+                    } else {
+                        executing = stack.peek()
+                    }
                 }
                 Bytecode.CALL -> {
                     val id: Byte = code[executing.pc++]
@@ -112,13 +88,13 @@ class ExecutionUnit(
 
                     if (label != 0.toByte()) {
                         val size: Int = Bytecode.labelTransfer(label)
-                        copyStackValues(executing, stack.peek(), size)
+                        executing.operandStack.copyStackValues(stack.peek().operandStack, size)
                     }
                     executing = stack.peek()
                 }
                 Bytecode.PRT_C -> {
 
-                } // Print as Unicode & ascii (A single char)
+                } // Print as Unicode (A single char)
             }
         }
     }
