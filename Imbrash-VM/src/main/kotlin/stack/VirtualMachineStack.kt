@@ -22,7 +22,7 @@ class VirtualMachineStack {
 
     fun push(value: Byte) { // 只压入一个字节
         stack[ptr++] = value
-        expandable()
+        // expandable()
     }
 
     fun pop(): Byte {
