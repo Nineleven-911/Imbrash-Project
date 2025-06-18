@@ -58,11 +58,16 @@ class ExecutionUnit(
                 Bytecode.PRT -> {
                     val label: Byte = code[executing.pc++]
                     require(label in 0 until 4)
-                    print(stack.peek().getStackValues(
-                        Bytecode.labelTransfer(label)
-                    ).toLong())
+                    print(
+                        stack.peek().getStackValues(
+                            Bytecode.labelTransfer(label)
+                        ).toLong()
+                    )
                 }
                 Bytecode.RET -> {
+                    if (stack.size == 1) {
+                        return
+                    }
                     val label: Byte = code[executing.pc++]
                     require(label in 0 until 5)
 
@@ -70,7 +75,8 @@ class ExecutionUnit(
                         val size: Int = Bytecode.labelTransfer(label)
                         stack.peek().copyStackValues(
                             stack[stack.size - 2],
-                            size)
+                            size
+                        )
                     }
                     stack.pop()
                     if (stack.isEmpty() or (label == 0.toByte())) {
@@ -92,8 +98,8 @@ class ExecutionUnit(
                     executing = stack.peek()
                 }
                 Bytecode.PRT_C -> {
-                    TODO("Trying to parse a char in bytearray")
-                } // Print a character as Unicode
+                    TODO()
+                }
             }
         }
     }

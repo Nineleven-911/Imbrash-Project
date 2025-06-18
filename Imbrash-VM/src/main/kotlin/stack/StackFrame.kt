@@ -3,9 +3,9 @@ package hairinne.ip.vm.stack
 import hairinne.utils.Overlooks
 
 class StackFrame(var pc: Int = 0) {
-    private var operandStack = ByteArray(128)
-    private var stackPtr = 0
-    private var localVariables: MutableMap<Long, Long> = mutableMapOf()
+    var operandStack = ByteArray(128)
+    var stackPtr = 0
+    var localVariables: MutableMap<Long, Long> = mutableMapOf()
 
     private fun expandable() {
         if (stackPtr + 64 >= operandStack.size) {
@@ -45,6 +45,10 @@ class StackFrame(var pc: Int = 0) {
         return res
     }
 
+    fun size(): Int {
+        return stackPtr
+    }
+
     fun getStack(): ByteArray {
         return operandStack
     }
@@ -55,11 +59,9 @@ class StackFrame(var pc: Int = 0) {
      * @return ByteArray
      */
     fun getStackValues(size: Int): ByteArray {
-        val arguments = ByteArray(size)
-        for (i in (0 until size).reversed()) {
-            arguments[i] = operandStack[stackPtr - i - 1]
-        }
-        return arguments
+        return operandStack.slice(
+            size() - size - 1 until size()
+        ).toByteArray()
     }
 
     /**
