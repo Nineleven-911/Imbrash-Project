@@ -93,7 +93,7 @@ class ExecutionUnit(
                 }
                 Bytecode.PRT_C -> {
                     TODO("Trying to parse a char in bytearray")
-                } // Print as Unicode (A single char)
+                } // Print a character as Unicode
             }
         }
     }
