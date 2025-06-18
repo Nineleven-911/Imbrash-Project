@@ -22,7 +22,7 @@ open class IVMBaseException(
               Executing Program Counter: ${if (eu.stack.isEmpty()) "[ No Programs In EU ]" else eu.stack.peek().pc}
               Executing Program Operand Stack: ${
             if (eu.stack.isEmpty()) "[ No Programs In EU ]"
-            else eu.stack.peek().operandStack.stack.toList()
+            else eu.stack.peek().getStack().toList()
         }
             
             VM Code:
@@ -42,4 +42,13 @@ class EntrypointNotFoundException(
 ) : IVMBaseException(
     eu, details, verbose,
     "Cannot find entrypoint in code. Your ICompiler may have some problem."
+)
+
+class IterableOutOfRangeException(
+    eu: ExecutionUnit,
+    details: String,
+    verbose: Boolean = false
+) : IVMBaseException(
+    eu, details, verbose,
+    "Iterable out of range. Please check your code."
 )

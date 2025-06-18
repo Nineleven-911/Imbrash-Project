@@ -46,20 +46,20 @@ class ExecutionUnit(
                     val label = code[executing.pc++]
                     require(label in 0 until 4)
                     for (i in 0 until Bytecode.labelTransfer(label)) {
-                        executing.operandStack.push(code[executing.pc++])
+                        executing.push(code[executing.pc++])
                     }
                 }
                 Bytecode.POP -> {
                     val label: Byte = code[executing.pc++]
                     require(label in 0 until 4)
                     for (i in 0 until Bytecode.labelTransfer(label)) {
-                        executing.operandStack.pop()
+                        executing.pop()
                     }
                 }
                 Bytecode.PRT -> {
                     val label: Byte = code[executing.pc++]
                     require(label in 0 until 4)
-                    print(stack.peek().operandStack.getStackValues(
+                    print(stack.peek().getStackValues(
                         Bytecode.labelTransfer(label)
                     ).toLong())
                 }
@@ -69,8 +69,8 @@ class ExecutionUnit(
 
                     if (label != 0.toByte()) {
                         val size: Int = Bytecode.labelTransfer(label)
-                        stack.peek().operandStack.copyStackValues(
-                            stack[stack.size - 2].operandStack,
+                        stack.peek().copyStackValues(
+                            stack[stack.size - 2],
                             size)
                     }
                     stack.pop()
@@ -88,7 +88,7 @@ class ExecutionUnit(
 
                     if (label != 0.toByte()) {
                         val size: Int = Bytecode.labelTransfer(label)
-                        executing.operandStack.copyStackValues(stack.peek().operandStack, size)
+                        executing.copyStackValues(stack.peek(), size)
                     }
                     executing = stack.peek()
                 }
