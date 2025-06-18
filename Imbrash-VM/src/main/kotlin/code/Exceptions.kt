@@ -1,6 +1,7 @@
 package hairinne.ip.vm.code
 
 import hairinne.ip.vm.vm.ExecutionUnit
+import hairinne.utils.Overlooks
 
 open class IVMBaseException(
     eu: ExecutionUnit,
@@ -18,15 +19,18 @@ open class IVMBaseException(
             Details: $details
         """.trimIndent() + "\n" + if (verbose) """
             VM Properties:
-              Function Call Stack: ${if (eu.stack.isEmpty()) "[]" else eu.stack.joinToString(", ")}
+              Function Call Stack: ${
+                  if (eu.stack.isEmpty()) "[]" 
+                  else eu.stack.toList()
+              }
               Executing Program Counter: ${if (eu.stack.isEmpty()) "[ No Programs In EU ]" else eu.stack.peek().pc}
               Executing Program Operand Stack: ${
             if (eu.stack.isEmpty()) "[ No Programs In EU ]"
-            else eu.stack.peek().getStack().toList()
+            else Overlooks.list(eu.stack.peek().getStack().toList())
         }
             
             VM Code:
-              ${eu.module.code}
+              ${Overlooks.list(eu.module.code)}
         """.trimIndent() + "\n" else "\n"
 
     init {

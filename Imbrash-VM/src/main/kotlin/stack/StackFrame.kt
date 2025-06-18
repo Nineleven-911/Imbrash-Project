@@ -1,5 +1,7 @@
 package hairinne.ip.vm.stack
 
+import hairinne.utils.Overlooks
+
 class StackFrame(var pc: Int = 0) {
     private var operandStack = ByteArray(128)
     private var stackPtr = 0
@@ -69,5 +71,9 @@ class StackFrame(var pc: Int = 0) {
         for (byte in this.getStackValues(size)) {
             to.push(byte)
         }
+    }
+
+    override fun toString(): String {
+        return """SF( os=${Overlooks.list(operandStack.toList())}}, sptr=$stackPtr, pc=$pc, lv=$localVariables )"""
     }
 }

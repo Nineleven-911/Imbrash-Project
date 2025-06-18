@@ -6,7 +6,6 @@ import hairinne.ip.vm.code.Function
 import hairinne.ip.vm.code.Module
 import hairinne.ip.vm.stack.StackFrame
 import hairinne.utils.ByteAndLong.LittleEndian.toLong
-
 import java.util.*
 
 /**
@@ -37,7 +36,7 @@ class ExecutionUnit(
     fun execute() {
         stack.push(StackFrame())
         var executing: StackFrame = stack.peek()
-        // executing.pc = findFunction(0).start // In InfDev mode, the compiler will add an entrypoint, now it's not be needed.
+        // executing.pc = findFunction(0).start // While compiling, the compiler will add an entrypoint function, now it's not written.
         val code = module.code
 
         while (true) {
@@ -93,7 +92,7 @@ class ExecutionUnit(
                     executing = stack.peek()
                 }
                 Bytecode.PRT_C -> {
-
+                    TODO("Trying to parse a char in bytearray")
                 } // Print as Unicode (A single char)
             }
         }
