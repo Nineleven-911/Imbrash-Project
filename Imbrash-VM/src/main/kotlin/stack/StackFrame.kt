@@ -1,7 +1,5 @@
 package hairinne.ip.vm.stack
 
-import hairinne.utils.Overlooks
-
 class StackFrame(var pc: Int = 0) {
     var operandStack = ByteArray(128)
     var stackPtr = 0
@@ -59,10 +57,9 @@ class StackFrame(var pc: Int = 0) {
      * @return ByteArray
      */
     fun getStackValues(size: Int): ByteArray {
-        return operandStack.slice(
-            size() - size - 1 until size()
-        ).toByteArray()
+        return operandStack.slice(stackPtr - size until stackPtr).toByteArray()
     }
+
 
     /**
      * Copy stack values from a to b
@@ -76,6 +73,6 @@ class StackFrame(var pc: Int = 0) {
     }
 
     override fun toString(): String {
-        return """SF( os=${Overlooks.list(operandStack.toList())}}, sptr=$stackPtr, pc=$pc, lv=$localVariables )"""
+        return "StackFrame(os=${operandStack.toList().dropLastWhile { it == 0.toByte() && this.size() > 1 }}, sptr=$stackPtr, pc=$pc, lv=$localVariables)"
     }
 }

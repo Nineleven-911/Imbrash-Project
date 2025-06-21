@@ -1,11 +1,10 @@
 package hairinne.ip.vm.vm
 
-import hairinne.ip.vm.code.Bytecode
-import hairinne.ip.vm.code.EntrypointNotFoundException
+import hairinne.ip.vm.code.*
 import hairinne.ip.vm.code.Function
-import hairinne.ip.vm.code.Module
 import hairinne.ip.vm.stack.StackFrame
-import hairinne.utils.ByteAndLong.LittleEndian.toLong
+import hairinne.utils.ByteAndLong.toLong
+import hairinne.utils.Unicodes
 import java.util.*
 
 /**
@@ -66,6 +65,7 @@ class ExecutionUnit(
                 }
                 Bytecode.RET -> {
                     if (stack.size == 1) {
+                        stack.pop()
                         return
                     }
                     val label: Byte = code[executing.pc++]
@@ -98,9 +98,25 @@ class ExecutionUnit(
                     executing = stack.peek()
                 }
                 Bytecode.PRT_C -> {
-                    TODO()
+                    val label = code[executing.pc++]
+                    require(label in 1 .. 4)
+                    print(
+                        Unicodes.decode(
+                            executing.getStackValues(
+                                label.toInt()
+                            ).toLong().toInt()
+                        )
+                    )
                 }
             }
+        }
+    }
+
+    fun exec() {
+        try {
+            execute()
+        } catch (e: Exception) {
+            throw RuntimeException(this, "Execute failed. $e")
         }
     }
 }

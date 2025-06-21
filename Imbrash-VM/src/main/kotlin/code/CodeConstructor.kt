@@ -34,6 +34,16 @@ class CodeConstructor {
         return this
     }
 
+    /**
+     * Integers will be translated to Bytes.
+     */
+    fun add(vararg code: Int): CodeConstructor {
+        for (i in code) {
+            codes.add(i.toByte())
+        }
+        return this
+    }
+
     fun build(): MutableList<Byte> {
         return codes
     }

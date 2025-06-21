@@ -1,7 +1,6 @@
 package hairinne.ip.vm.code
 
 import hairinne.ip.vm.vm.ExecutionUnit
-import hairinne.utils.Overlooks
 
 open class IVMBaseException(
     eu: ExecutionUnit,
@@ -25,7 +24,7 @@ open class IVMBaseException(
               Executing Program Counter: ${if (eu.stack.isEmpty()) "[ No Programs In EU ]" else eu.stack.peek().pc}
               Executing Program Operand Stack: ${
             if (eu.stack.isEmpty()) "[ No Programs In EU ]"
-            else Overlooks.list(eu.stack.peek().getStack().toList())
+            else eu.stack.peek().getStack().toList().dropLastWhile { it == 0.toByte() }
             }
             
             VM Code:
@@ -54,7 +53,7 @@ class IterableOutOfRangeException(
     "Iterable out of range. Please check your code."
 )
 
-class EmptyStackException(
+class EmptyOperandStackException(
     eu: ExecutionUnit,
     details: String,
 ) : IVMBaseException(
@@ -68,4 +67,20 @@ class InvalidDataException(
 ) : IVMBaseException(
     eu, details,
     "Invalid data. Usually occurred on PRT_C."
+)
+
+class BytecodeNotFoundException(
+    eu: ExecutionUnit,
+    details: String,
+) : IVMBaseException(
+    eu, details,
+    "Invalid bytecode."
+)
+
+class RuntimeException(
+    eu: ExecutionUnit,
+    details: String,
+) : IVMBaseException(
+    eu, details,
+    "An error occurred during runtime."
 )

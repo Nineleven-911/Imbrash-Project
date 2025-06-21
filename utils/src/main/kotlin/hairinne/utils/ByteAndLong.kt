@@ -1,70 +1,47 @@
 package hairinne.utils
 
 object ByteAndLong {
-    object BigEndian {
-        /**
-         * Convert ByteArray to Long
-         *
-         * Big Endian:
-         * 11, 22, 33, 44 -> 11223344L
-         * @receiver ByteArray
-         * @return Long
-         */
-        fun ByteArray.toLong(): Long {
-            var res: Long = 0
-            for (i in this) {
-                res += (res shl 8) + i.toLong()
-            }
-            return res
+    /**
+     * Translate List of Byte to Long.
+     *
+     * Example:
+     * ```[0x4F, 0x60] -> 0x4F60```
+     * ```[79, 96] -> 20320```
+     *
+     * @return result in Long.
+     */
+    fun List<Byte>.toLong(): Long {
+        var result = 0L
+        for (i in this) {
+            result = (result shl 8) + i.toLong()
         }
-
-        /**
-         * Convert Long to ByteArray
-         *
-         * Big Endian:
-         * 11223344L -> 11, 22, 33, 44
-         * @receiver Long
-         * @return ByteArray
-         */
-        fun Long.toByteArray(): ByteArray {
-            val res: MutableList<Byte> = mutableListOf()
-            for (i in 0 until 8) {
-                res.add((this shr (i * 8)).toByte())
-            }
-            return res.toByteArray()
-        }
+        return result
     }
-    object LittleEndian {
-        /**
-         * Convert ByteArray to Long
-         *
-         * Little Endian:
-         * 11, 22, 33, 44 -> 11223344L
-         * @receiver ByteArray
-         * @return Long
-         */
-        fun ByteArray.toLong(): Long {
-            var res: Long = 0
-            for (i in this.reversed()) {
-                res += (res shl 8) + i.toLong()
-            }
-            return res
-        }
 
-        /**
-         * Convert Long to ByteArray
-         *
-         * Little Endian:
-         * 11223344L -> 11, 22, 33, 44
-         * @receiver Long
-         * @return ByteArray
-         */
-        fun Long.toByteArray(): ByteArray {
-            val res: MutableList<Byte> = mutableListOf()
-            for (i in (0 until 8).reversed()) {
-                res.add((this shr (i * 8)).toByte())
-            }
-            return res.toByteArray()
+    /**
+     * Translate ByteArray to Long.
+     * returns ```List<Byte>.toLong()```
+     */
+    fun ByteArray.toLong(): Long {
+        return this.toList().toLong()
+    }
+
+    /**
+     * Translate Long to ByteArray.
+     *
+     * Example:
+     * ```0x4F60 -> [0x4F, 0x60]```
+     * ```20320 -> [79, 96]```
+     *
+     * @return result in ByteArray.
+     */
+    fun Long.toByteArray(): List<Byte> {
+        val result = mutableListOf<Byte>()
+        for (i in 0 until 8) {
+            result.add(
+                ((this shr (i * 8)) and 0xFF.toLong()).toByte()
+            )
         }
+        return result.toList().reversed().dropWhile { it == 0.toByte() }
     }
 }
