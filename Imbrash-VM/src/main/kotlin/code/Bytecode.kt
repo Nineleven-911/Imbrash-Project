@@ -15,4 +15,14 @@ object Bytecode {
     fun labelTransfer(label: Int): Int {
         return 1 shl label
     }
+
+    fun labelRetransfer(byteCount: Int): Byte {
+        return when (byteCount) {
+            1 -> 0
+            2 -> 1
+            4 -> 2
+            8 -> 3
+            else -> throw IllegalArgumentException("Invalid byte count: $byteCount")
+        }
+    }
 }

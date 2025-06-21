@@ -8,21 +8,37 @@ import hairinne.ip.vm.vm.ExecutionUnit
 fun main() {
     val executionUnit = ExecutionUnit(
         Module(
-            CodeConstructor().add( // 0x4f60, 0x597d, 0x4e16, 0x754c, 0xff01
-                Bytecode.PUSH, 1, '你'.code,
-                Bytecode.PRT_C, 2,
-                Bytecode.PUSH, 1, '好'.code,
-                Bytecode.PRT_C, 2,
-                Bytecode.PUSH, 1, '世'.code,
-                Bytecode.PRT_C, 2,
-                Bytecode.PUSH, 1, '界'.code,
-                Bytecode.PRT_C, 2,
-                Bytecode.PUSH
-            ).add(0).add(
-                '!'.code,
-                Bytecode.PRT_C, 1,
-                Bytecode.RET
-            ).build()
+            CodeConstructor()
+                .add(
+                    Bytecode.PUSH, 0, 'H'.code,
+                    Bytecode.PRT_C, 1,
+                    Bytecode.PUSH, 0, 'e'.code,
+                    Bytecode.PRT_C, 1,
+                    Bytecode.PUSH, 0, 'l'.code,
+                    Bytecode.PRT_C, 1,
+                    Bytecode.PUSH, 0, 'l'.code,
+                    Bytecode.PRT_C, 1,
+                    Bytecode.PUSH, 0, 'o'.code,
+                    Bytecode.PRT_C, 1,
+                    Bytecode.PUSH, 0, ','.code,
+                    Bytecode.PRT_C, 1,
+                    Bytecode.PUSH, 0, ' '.code,
+                    Bytecode.PRT_C, 1,
+                    Bytecode.PUSH, 0, 'W'.code,
+                    Bytecode.PRT_C, 1,
+                    Bytecode.PUSH, 0, 'o'.code,
+                    Bytecode.PRT_C, 1,
+                    Bytecode.PUSH, 0, 'r'.code,
+                    Bytecode.PRT_C, 1,
+                    Bytecode.PUSH, 0, 'l'.code,
+                    Bytecode.PRT_C, 1,
+                    Bytecode.PUSH, 0, 'd'.code,
+                    Bytecode.PRT_C, 1,
+                    Bytecode.PUSH, 0, '!'.code,
+                    Bytecode.PRT_C, 1
+                )
+                .ret()
+                .build()
         ),
         arrayOf()
     )
