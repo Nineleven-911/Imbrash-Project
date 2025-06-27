@@ -17,7 +17,7 @@ import java.util.*
 
 class ExecutionUnit(
     val module: Module,
-    val functions: Array<Function> /* Performance Sensitive uses Array */
+    val functions: List<Function> // For runtime safe, uses List
 ) {
     val stack: Stack<StackFrame> = Stack()
 

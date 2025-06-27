@@ -40,7 +40,7 @@ fun main() {
                 .ret()
                 .build()
         ),
-        arrayOf()
+        listOf()
     )
     executionUnit.execute()
 }
