@@ -3,7 +3,7 @@ package hairinne.ip.vm.code
 import hairinne.ip.vm.vm.ExecutionUnit
 
 open class IVMBaseException(
-    eu: ExecutionUnit,
+    eu: ExecutionUnit?,
     details: String,
     possibleReason: String = "BaseException should never be threw. Please check your IVM code."
 ) : Throwable() {
@@ -15,7 +15,10 @@ open class IVMBaseException(
             ErrorType: ${this::class.simpleName}
             Possible Reason: $possibleReason
             Details: $details
-        
+            
+        """.trimIndent() +
+        if (eu != null)
+        """
             VM Properties:
               Function Call Stack: ${
                   if (eu.stack.isEmpty()) "[]" 
@@ -24,12 +27,13 @@ open class IVMBaseException(
               Executing Program Counter: ${if (eu.stack.isEmpty()) "[ No Programs In EU ]" else eu.stack.peek().pc}
               Executing Program Operand Stack: ${
             if (eu.stack.isEmpty()) "[ No Programs In EU ]"
-            else eu.stack.peek().getStack().toList().dropLastWhile { it == 0.toByte() }
+            else eu.stack.peek().toString()
             }
             
             VM Code:
               ${eu.module}
         """.trimIndent() + "\n"
+    else "No VM provided."
 
     init {
         System.err.println(template)
@@ -38,7 +42,7 @@ open class IVMBaseException(
 
 
 class EntrypointNotFoundException(
-    eu: ExecutionUnit,
+    eu: ExecutionUnit?,
     details: String,
 ) : IVMBaseException(
     eu, details,
@@ -46,7 +50,7 @@ class EntrypointNotFoundException(
 )
 
 class IterableOutOfRangeException(
-    eu: ExecutionUnit,
+    eu: ExecutionUnit?,
     details: String,
 ) : IVMBaseException(
     eu, details,
@@ -54,7 +58,7 @@ class IterableOutOfRangeException(
 )
 
 class EmptyOperandStackException(
-    eu: ExecutionUnit,
+    eu: ExecutionUnit?,
     details: String,
 ) : IVMBaseException(
     eu, details,
@@ -62,7 +66,7 @@ class EmptyOperandStackException(
 )
 
 class InvalidDataException(
-    eu: ExecutionUnit,
+    eu: ExecutionUnit?,
     details: String,
 ) : IVMBaseException(
     eu, details,
@@ -70,7 +74,7 @@ class InvalidDataException(
 )
 
 class BytecodeNotFoundException(
-    eu: ExecutionUnit,
+    eu: ExecutionUnit?,
     details: String,
 ) : IVMBaseException(
     eu, details,
@@ -78,7 +82,7 @@ class BytecodeNotFoundException(
 )
 
 class RuntimeException(
-    eu: ExecutionUnit,
+    eu: ExecutionUnit?,
     details: String,
 ) : IVMBaseException(
     eu, details,

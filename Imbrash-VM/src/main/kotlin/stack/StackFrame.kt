@@ -73,6 +73,6 @@ class StackFrame(var pc: Int = 0) {
     }
 
     override fun toString(): String {
-        return "StackFrame(os=${operandStack.toList().dropLastWhile { it == 0.toByte() && this.size() > 1 }}, sptr=$stackPtr, pc=$pc, lv=$localVariables)"
+        return "StackFrame(os=${operandStack.toList().dropLastWhile { it == 0.toByte() }}, sptr=$stackPtr, pc=$pc, lv=$localVariables)"
     }
 }

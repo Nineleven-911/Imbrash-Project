@@ -48,9 +48,14 @@ class ExecutionUnit(
                 }
 
                 Bytecode.POP -> {
-                    val label: Byte = code[executing.pc++]
-                    require(label in 0 until 4)
-                    for (i in 0 until Bytecode.labelTransfer(label)) {
+                    val byteCount = Bytecode.labelTransfer(code[executing.pc++])
+                    require(byteCount in listOf(1, 2, 4, 8))
+                    if (byteCount > executing.size()) {
+                        throw EmptyOperandStackException(
+                            this,
+                            "Stack is empty. Pop `null` instead!")
+                    }
+                    for (i in 0 until byteCount) {
                         executing.pop()
                     }
                 }
