@@ -17,7 +17,7 @@ import java.util.*
 
 class ExecutionUnit(
     val module: Module,
-    val functions: List<Function> // For runtime safe, uses List
+    val functions: Array<Function> // Use Array for better performance
 ) {
     val stack: Stack<StackFrame> = Stack()
 
@@ -28,8 +28,7 @@ class ExecutionUnit(
      */
     fun findFunction(id: Long): IntRange {
         val range = functions.find { it.id.id == id }?.location?.toRange()
-        return range ?:
-        throw EntrypointNotFoundException(this, "Function's entrypoint not found")
+        return range ?: throw EntrypointNotFoundException(this, "Function's entrypoint not found")
     }
 
     fun execute() {
@@ -47,6 +46,7 @@ class ExecutionUnit(
                         executing.push(code[executing.pc++])
                     }
                 }
+
                 Bytecode.POP -> {
                     val label: Byte = code[executing.pc++]
                     require(label in 0 until 4)
@@ -54,6 +54,7 @@ class ExecutionUnit(
                         executing.pop()
                     }
                 }
+
                 Bytecode.PRT -> {
                     val label: Byte = code[executing.pc++]
                     require(label in 0 until 4)
@@ -63,6 +64,7 @@ class ExecutionUnit(
                         ).toLong()
                     )
                 }
+
                 Bytecode.RET -> {
                     if (stack.size == 1) {
                         stack.pop()
@@ -85,6 +87,7 @@ class ExecutionUnit(
                         executing = stack.peek()
                     }
                 }
+
                 Bytecode.CALL -> {
                     val id: Byte = code[executing.pc++]
                     val label: Byte = code[executing.pc++]
@@ -97,9 +100,10 @@ class ExecutionUnit(
                     }
                     executing = stack.peek()
                 }
+
                 Bytecode.PRT_C -> {
                     val label = code[executing.pc++]
-                    require(label in 1 .. 4)
+                    require(label in 1..4)
                     print(
                         Unicodes.decode(
                             executing.getStackValues(
