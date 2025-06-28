@@ -9,7 +9,6 @@ fun main() {
     val executionUnit = ExecutionUnit(
         Module(
             CodeConstructor()
-                // .helloWorld()
                 .add(
                     Bytecode.POP, 1
                 )
