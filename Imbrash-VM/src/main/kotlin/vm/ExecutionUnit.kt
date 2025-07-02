@@ -127,11 +127,14 @@ class ExecutionUnit(
                     val op1 = executing.pop(size)
                     val op2 = executing.pop(size)
                     if (size <= 3) {
+                        val tmp1 = op1.toLong()
+                        val tmp2 = op2.toLong()
                         val result = when ((label shr 4) and 0x0F) {
-                            0 -> op1.toLong() + op2.toLong()
-                            1 -> op1.toLong() - op2.toLong()
-                            2 -> op1.toLong() * op2.toLong()
-                            3 -> op1.toLong() / op2.toLong()
+                            0 -> tmp1 + tmp2
+                            1 -> tmp1 - tmp2
+                            2 -> tmp1 * tmp2
+                            3 -> tmp1 / tmp2
+                            4 -> tmp1 % tmp2
                             else -> throw InvalidDataException(
                                 this,
                                 "Invalid data. Usually occurred on PRT_C."
@@ -146,15 +149,38 @@ class ExecutionUnit(
                         }
                         executing.push(ret)
                     } else if (size == 4) {
+                        val tmp1 = Float.fromBits(op1.toLong().toInt())
+                        val tmp2 = Float.fromBits(op2.toLong().toInt())
+                        val ret = when ((label shr 4) and 0x0F) {
+                            0 -> tmp1 + tmp2
+                            1 -> tmp1 - tmp2
+                            2 -> tmp1 * tmp2
+                            3 -> tmp1 / tmp2
+                            4 -> (tmp1.toDouble() % tmp2.toDouble()).toFloat()
+                            else -> throw InvalidDataException(
+                                this,
+                                "Invalid data."
+                            )
+                        }
                         executing.push(
-                            (Float.fromBits(op1.toLong().toInt()) + Float.fromBits(
-                                op2.toLong().toInt()
-                            )).toBits().toLong().toByteArray().toByteArray()
+                            ret.toBits().toLong().toByteArray().toByteArray()
                         )
                     } else if (size == 5) {
+                        val tmp1 = Double.fromBits(op1.toLong())
+                        val tmp2 = Double.fromBits(op2.toLong())
+                        val ret = when ((label shr 4) and 0x0F) {
+                            0 -> tmp1 + tmp2
+                            1 -> tmp1 - tmp2
+                            2 -> tmp1 * tmp2
+                            3 -> tmp1 / tmp2
+                            4 -> (tmp1 % tmp2)
+                            else -> throw InvalidDataException(
+                                this,
+                                "Invalid data. "
+                            )
+                        }
                         executing.push(
-                            (Double.fromBits(op1.toLong()) + Double.fromBits(op2.toLong())).toBits().toByteArray()
-                                .toByteArray()
+                            ret.toBits().toByteArray().toByteArray()
                         )
                     }
                 }

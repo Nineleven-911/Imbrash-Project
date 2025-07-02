@@ -10,9 +10,9 @@ fun main() {
         Module(
             CodeConstructor()
                 .add(Bytecode.PUSH, 0, 0xff)
-                .add(Bytecode.PUSH, 0, 0xfd)
-                .add(Bytecode.BINARY_OP, 0, 0x01)
-                .add(Bytecode.PRT,0)
+                .add(Bytecode.PUSH, 0, 0xfe)
+                .add(Bytecode.BINARY_OP, 0)
+                .add(Bytecode.PRT, 0)
                 .ret()
                 .build()
         ),
