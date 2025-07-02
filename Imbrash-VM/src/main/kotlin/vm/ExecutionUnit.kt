@@ -3,6 +3,7 @@ package hairinne.ip.vm.vm
 import hairinne.ip.vm.code.*
 import hairinne.ip.vm.code.Function
 import hairinne.ip.vm.stack.StackFrame
+import hairinne.utils.ByteAndLong.toByteArray
 import hairinne.utils.ByteAndLong.toLong
 import hairinne.utils.Unicodes
 import java.util.*
@@ -42,9 +43,10 @@ class ExecutionUnit(
                 Bytecode.PUSH -> {
                     val label = code[executing.pc++]
                     require(label in 0 until 4)
-                    for (i in 0 until Bytecode.labelTransfer(label)) {
-                        executing.push(code[executing.pc++])
-                    }
+                    val size = Bytecode.labelTransfer(label)
+                    val value = code.slice(executing.pc until executing.pc + size).toByteArray()
+                    executing.push(value)
+                    executing.pc += size
                 }
 
                 Bytecode.POP -> {
@@ -53,18 +55,17 @@ class ExecutionUnit(
                     if (byteCount > executing.size()) {
                         throw EmptyOperandStackException(
                             this,
-                            "Stack is empty. Pop `null` instead!")
+                            "Stack is empty. Pop `null` instead!"
+                        )
                     }
-                    for (i in 0 until byteCount) {
-                        executing.pop()
-                    }
+                    executing.pop(byteCount)
                 }
 
                 Bytecode.PRT -> {
                     val label: Byte = code[executing.pc++]
                     require(label in 0 until 4)
                     print(
-                        stack.peek().getStackValues(
+                        executing.pop(
                             Bytecode.labelTransfer(label)
                         ).toLong()
                     )
@@ -80,7 +81,7 @@ class ExecutionUnit(
 
                     if (label != 0.toByte()) {
                         val size: Int = Bytecode.labelTransfer(label)
-                        stack.peek().copyStackValues(
+                        executing.copyStackValues(
                             stack[stack.size - 2],
                             size
                         )
@@ -97,13 +98,14 @@ class ExecutionUnit(
                     val id: Byte = code[executing.pc++]
                     val label: Byte = code[executing.pc++]
                     require(label in 0 until 5)
-                    stack.push(StackFrame(findFunction(id.toLong()).start))
+                    val frame = StackFrame(findFunction(id.toLong()).start)
+                    stack.push(frame)
 
                     if (label != 0.toByte()) {
                         val size: Int = Bytecode.labelTransfer(label)
-                        executing.copyStackValues(stack.peek(), size)
+                        executing.copyStackValues(frame, size)
                     }
-                    executing = stack.peek()
+                    executing = frame
                 }
 
                 Bytecode.PRT_C -> {
@@ -111,11 +113,50 @@ class ExecutionUnit(
                     require(label in 1..4)
                     print(
                         Unicodes.decode(
-                            executing.getStackValues(
+                            executing.pop(
                                 label.toInt()
                             ).toLong().toInt()
                         )
                     )
+                }
+
+                Bytecode.BINARY_OP -> {
+                    val label = code[executing.pc++].toInt()
+                    val type = label and 0x0F
+                    val size = Bytecode.labelTransfer(type)
+                    val op1 = executing.pop(size)
+                    val op2 = executing.pop(size)
+                    if (size <= 3) {
+                        val result = when ((label shr 4) and 0x0F) {
+                            0 -> op1.toLong() + op2.toLong()
+                            1 -> op1.toLong() - op2.toLong()
+                            2 -> op1.toLong() * op2.toLong()
+                            3 -> op1.toLong() / op2.toLong()
+                            else -> throw InvalidDataException(
+                                this,
+                                "Invalid data. Usually occurred on PRT_C."
+                            )
+                        }
+                        val ret = ByteArray(size)
+                        for (i in size - 1 downTo 0) ret[i] = ((result shr (i * 8)) and 0xFF).toByte()
+                        if (label < 3) {
+                            val sign = result and (1L shl 63)
+                            if (sign != 0L) ret[0] = (0x80 or (ret[0].toInt() and 0x7F)).toByte()
+                            else ret[0] = (ret[0].toInt() and 0x7F).toByte()
+                        }
+                        executing.push(ret)
+                    } else if (size == 4) {
+                        executing.push(
+                            (Float.fromBits(op1.toLong().toInt()) + Float.fromBits(
+                                op2.toLong().toInt()
+                            )).toBits().toLong().toByteArray().toByteArray()
+                        )
+                    } else if (size == 5) {
+                        executing.push(
+                            (Double.fromBits(op1.toLong()) + Double.fromBits(op2.toLong())).toBits().toByteArray()
+                                .toByteArray()
+                        )
+                    }
                 }
             }
         }

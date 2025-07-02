@@ -9,9 +9,10 @@ fun main() {
     val executionUnit = ExecutionUnit(
         Module(
             CodeConstructor()
-                .add(
-                    Bytecode.POP, 1
-                )
+                .add(Bytecode.PUSH, 0, 0xff)
+                .add(Bytecode.PUSH, 0, 0xfd)
+                .add(Bytecode.BINARY_OP, 0, 0x01)
+                .add(Bytecode.PRT,0)
                 .ret()
                 .build()
         ),
