@@ -1,5 +1,7 @@
 package hairinne.ip.vm.stack
 
+import hairinne.ip.vm.code.EmptyOperandStackException
+
 class StackFrame(var pc: Int = 0) {
     var operandStack = ByteArray(128)
     var stackPtr = 0
@@ -29,18 +31,23 @@ class StackFrame(var pc: Int = 0) {
         }
     }
 
-    fun push(value: Byte) {
-        operandStack[stackPtr++] = value
+    fun push(values: ByteArray) {
+        require(values.size in listOf(1, 2, 4, 8))
+        for (byte in values) {
+            operandStack[stackPtr++] = byte
+        }
         expandable()
     }
 
-    fun pop(): Byte? {
-        if (stackPtr == 0) {
-            return null
+    fun pop(size: Int): ByteArray {
+        require(size in listOf(1, 2, 4, 8))
+        if (stackPtr-size < 0) {
+            throw EmptyOperandStackException(null,"Stack pointer out of range.")
         }
-        val res = operandStack[--stackPtr]
+        val ret = operandStack.slice(stackPtr - size until stackPtr).toByteArray()
+        stackPtr -= size
         shrinkable()
-        return res
+        return ret
     }
 
     fun size(): Int {
@@ -56,7 +63,7 @@ class StackFrame(var pc: Int = 0) {
      * @param size Count of bytes
      * @return ByteArray
      */
-    fun getStackValues(size: Int): ByteArray {
+    fun getValues(size: Int): ByteArray {
         return operandStack.slice(stackPtr - size until stackPtr).toByteArray()
     }
 
@@ -67,12 +74,12 @@ class StackFrame(var pc: Int = 0) {
      * @param size Count of bytes
      */
     fun copyStackValues(to: StackFrame, size: Int) {
-        for (byte in this.getStackValues(size)) {
-            to.push(byte)
-        }
+        to.push(getValues(size))
     }
 
     override fun toString(): String {
-        return "StackFrame(os=${operandStack.toList().dropLastWhile { it == 0.toByte() }}, sptr=$stackPtr, pc=$pc, lv=$localVariables)"
+        return "StackFrame(os=${
+            operandStack.toList().dropLastWhile { it == 0.toByte() }
+        }, sptr=$stackPtr, pc=$pc, lv=$localVariables)"
     }
 }
