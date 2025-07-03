@@ -35,7 +35,8 @@ class ExecutionUnit(
     fun execute() {
         stack.push(StackFrame())
         var executing: StackFrame = stack.peek()
-        // executing.pc = findFunction(0).start // While compiling, the compiler will add an entrypoint function, now it's not written.
+        // While compiling, the compiler will add an entrypoint function, now it's not written.
+        // executing.pc = findFunction(0).start
         val code = module.code
 
         while (true) {
@@ -48,7 +49,6 @@ class ExecutionUnit(
                     executing.push(value)
                     executing.pc += size
                 }
-
                 Bytecode.POP -> {
                     val byteCount = Bytecode.labelTransfer(code[executing.pc++])
                     require(byteCount in listOf(1, 2, 4, 8))
@@ -60,7 +60,6 @@ class ExecutionUnit(
                     }
                     executing.pop(byteCount)
                 }
-
                 Bytecode.PRT -> {
                     val label: Byte = code[executing.pc++]
                     require(label in 0 until 4)
@@ -70,7 +69,6 @@ class ExecutionUnit(
                         ).toLong()
                     )
                 }
-
                 Bytecode.RET -> {
                     if (stack.size == 1) {
                         stack.pop()
@@ -93,7 +91,6 @@ class ExecutionUnit(
                         executing = stack.peek()
                     }
                 }
-
                 Bytecode.CALL -> {
                     val id: Byte = code[executing.pc++]
                     val label: Byte = code[executing.pc++]
@@ -107,7 +104,6 @@ class ExecutionUnit(
                     }
                     executing = frame
                 }
-
                 Bytecode.PRT_C -> {
                     val label = code[executing.pc++]
                     require(label in 1..4)
@@ -119,7 +115,6 @@ class ExecutionUnit(
                         )
                     )
                 }
-
                 Bytecode.BINARY_OP -> {
                     val label = code[executing.pc++].toInt()
                     val type = label and 0x0F
@@ -137,7 +132,7 @@ class ExecutionUnit(
                             4 -> tmp1 % tmp2
                             else -> throw InvalidDataException(
                                 this,
-                                "Invalid data. Usually occurred on PRT_C."
+                                "Invalid type id."
                             )
                         }
                         val ret = ByteArray(size)
@@ -159,7 +154,7 @@ class ExecutionUnit(
                             4 -> (tmp1.toDouble() % tmp2.toDouble()).toFloat()
                             else -> throw InvalidDataException(
                                 this,
-                                "Invalid data."
+                                "Invalid type id."
                             )
                         }
                         executing.push(
