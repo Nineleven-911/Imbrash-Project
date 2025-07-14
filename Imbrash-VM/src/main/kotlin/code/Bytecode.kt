@@ -27,3 +27,11 @@ object Bytecode {
         }
     }
 }
+
+object BinaryOperator {
+    const val ADD: Byte = 0x00
+    const val SUB: Byte = 0x01
+    const val MUL: Byte = 0x02
+    const val DIV: Byte = 0x03
+    const val MOD: Byte = 0x04
+}

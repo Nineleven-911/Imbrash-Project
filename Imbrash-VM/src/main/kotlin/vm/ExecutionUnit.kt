@@ -125,11 +125,11 @@ class ExecutionUnit(
                         val tmp1 = op1.toLong()
                         val tmp2 = op2.toLong()
                         val result = when ((label shr 4) and 0x0F) {
-                            0 -> tmp1 + tmp2
-                            1 -> tmp1 - tmp2
-                            2 -> tmp1 * tmp2
-                            3 -> tmp1 / tmp2
-                            4 -> tmp1 % tmp2
+                            BinaryOperator.ADD.toInt() -> tmp1 + tmp2
+                            BinaryOperator.SUB.toInt() -> tmp1 - tmp2
+                            BinaryOperator.MUL.toInt() -> tmp1 * tmp2
+                            BinaryOperator.DIV.toInt() -> tmp1 / tmp2
+                            BinaryOperator.MOD.toInt() -> tmp1 % tmp2
                             else -> throw InvalidDataException(
                                 this,
                                 "Invalid type id."
@@ -147,11 +147,11 @@ class ExecutionUnit(
                         val tmp1 = Float.fromBits(op1.toLong().toInt())
                         val tmp2 = Float.fromBits(op2.toLong().toInt())
                         val ret = when ((label shr 4) and 0x0F) {
-                            0 -> tmp1 + tmp2
-                            1 -> tmp1 - tmp2
-                            2 -> tmp1 * tmp2
-                            3 -> tmp1 / tmp2
-                            4 -> (tmp1.toDouble() % tmp2.toDouble()).toFloat()
+                            BinaryOperator.ADD.toInt() -> tmp1 + tmp2
+                            BinaryOperator.SUB.toInt() -> tmp1 - tmp2
+                            BinaryOperator.MUL.toInt() -> tmp1 * tmp2
+                            BinaryOperator.DIV.toInt() -> tmp1 / tmp2
+                            BinaryOperator.MOD.toInt() -> (tmp1.toDouble() % tmp2.toDouble()).toFloat()
                             else -> throw InvalidDataException(
                                 this,
                                 "Invalid type id."
@@ -164,11 +164,11 @@ class ExecutionUnit(
                         val tmp1 = Double.fromBits(op1.toLong())
                         val tmp2 = Double.fromBits(op2.toLong())
                         val ret = when ((label shr 4) and 0x0F) {
-                            0 -> tmp1 + tmp2
-                            1 -> tmp1 - tmp2
-                            2 -> tmp1 * tmp2
-                            3 -> tmp1 / tmp2
-                            4 -> (tmp1 % tmp2)
+                            BinaryOperator.ADD.toInt() -> tmp1 + tmp2
+                            BinaryOperator.SUB.toInt() -> tmp1 - tmp2
+                            BinaryOperator.MUL.toInt() -> tmp1 * tmp2
+                            BinaryOperator.DIV.toInt() -> tmp1 / tmp2
+                            BinaryOperator.MOD.toInt() -> tmp1 % tmp2
                             else -> throw InvalidDataException(
                                 this,
                                 "Invalid data. "
