@@ -11,3 +11,23 @@ dependencies {
     implementation(libs.bundles.kotlinxEcosystem)
     testImplementation(kotlin("test"))
 }
+
+//////////
+version = "Indev-1.0.0-F"
+
+tasks.jar {
+    archiveBaseName.set("IUtil")
+}
+
+fun getJarName(): String {
+    return "${tasks.jar.get().archiveBaseName.get()}-${tasks.jar.get().archiveVersion.get()}.jar"
+}
+
+project.copy {
+    if (File("${rootDir.path}\\official\\bin\\${getJarName()}").exists()) {
+        File("${rootDir.path}\\official\\bin\\${getJarName()}").delete()
+    }
+    from("${project.projectDir}\\build\\libs\\${getJarName()}")
+    into("${rootDir.path}\\official\\bin")
+}
+//////

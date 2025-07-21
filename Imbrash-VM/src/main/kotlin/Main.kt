@@ -1,5 +1,6 @@
 package hairinne.ip.vm
 
+import hairinne.ip.vm.code.BinaryOperator
 import hairinne.ip.vm.code.Bytecode
 import hairinne.ip.vm.code.CodeConstructor
 import hairinne.ip.vm.code.Module
@@ -11,12 +12,13 @@ fun main() {
             CodeConstructor()
                 .add(Bytecode.PUSH, 0, 0xff)
                 .add(Bytecode.PUSH, 0, 0xfe)
-                .add(Bytecode.BINARY_OP, 0)
+                .add(Bytecode.BINARY_OP, BinaryOperator.ADD)
                 .add(Bytecode.PRT, 0)
                 .ret()
                 .build()
         ),
-        arrayOf()
+        arrayOf() // Not implemented yet
     )
+    // This Code will calculate (0xFF + 0xFE).toByte(), result is -3
     executionUnit.execute()
 }
