@@ -4,6 +4,3 @@
 
 ## Project Description
 Orz
-
-## Do before running
-Check all the build.gradle.kts files and change the `COMPILED_DIRECTORY` to your own directory.
