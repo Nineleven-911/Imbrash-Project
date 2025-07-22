@@ -49,7 +49,7 @@ class EntrypointNotFoundException(
     "Cannot find entrypoint in code. Your ICompiler may have some problem."
 )
 
-class IterableOutOfRangeException(
+class IterableOutOfBoundsException(
     eu: ExecutionUnit?,
     details: String,
 ) : IVMBaseException(

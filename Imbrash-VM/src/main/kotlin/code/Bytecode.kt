@@ -1,5 +1,9 @@
 package hairinne.ip.vm.code
 
+import hairinne.ip.vm.vm.ExecutionUnit
+import java.text.SimpleDateFormat
+import java.util.*
+
 object Bytecode {
     const val PUSH: Byte = 0x00 /* Labels: 0-3 */
     const val POP: Byte = 0x01 /* Labels: 0-3 */
@@ -7,7 +11,7 @@ object Bytecode {
     const val RET: Byte = 0x03 /* Labels: 0-4 */
     const val CALL: Byte = 0x04 /* Labels: 0-4 */
     const val PRT_C: Byte = 0x05
-    const val BINARY_OP: Byte = 0x06 /* op: 0->ADD, 1->SUB, 2->MUL, 3->DIV, 4->MOD */
+    const val BINARY_OP: Byte = 0x06 /* Look at object: BinaryOperator */
 
     fun labelTransfer(label: Byte): Int {
         return 1 shl label.toInt()
@@ -34,4 +38,34 @@ object BinaryOperator {
     const val MUL: Byte = 0x02
     const val DIV: Byte = 0x03
     const val MOD: Byte = 0x04
+}
+
+object Debugs {
+    const val DEBUG: Byte = -0x01
+
+    const val INFO: Byte = 0
+    const val WARNING: Byte = 1
+    const val ERROR: Byte = 2
+
+    const val PRT_PC: Byte = 0x01
+
+    fun debug(eu: ExecutionUnit): Int {
+        val frame = eu.stack.peek()
+        var ptr = frame.pc
+        // Mach Debug Level
+        when (eu[ptr++]) {
+            INFO -> print("DEBUG: [Info] ")
+            WARNING -> print("DEBUG: [Warning] ")
+            ERROR -> print("DEBUG: [Error] ")
+            else -> print("DEBUG: [NULL] ")
+        }
+        // Print time e.g. 07-22 14:40:32
+        val timeFormatter = SimpleDateFormat("mm:ss", Locale.getDefault()!!)
+        print("at ${timeFormatter.format(Date(System.currentTimeMillis()))}: ")
+        // Match Debug Behavior
+        when (eu[ptr++]) {
+            PRT_PC -> println("Program Counter = ${frame.pc - 1}, Next is ${frame.pc}")
+        }
+        return ptr
+    }
 }

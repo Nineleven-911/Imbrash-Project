@@ -1,6 +1,8 @@
 package hairinne.ip.vm.stack
 
 import hairinne.ip.vm.code.EmptyOperandStackException
+import hairinne.ip.vm.code.IterableOutOfBoundsException
+import hairinne.ip.vm.vm.VMProperties.operandStackMaxSize
 
 class StackFrame(var pc: Int = 0) {
     var operandStack = ByteArray(128)
@@ -8,8 +10,11 @@ class StackFrame(var pc: Int = 0) {
     var localVariables: MutableMap<Long, Long> = mutableMapOf()
 
     private fun expandable() {
+        if (operandStack.size + 64 >= operandStackMaxSize) {
+            throw IterableOutOfBoundsException(null, "Come on! Your stack storages $operandStackMaxSize MB data!")
+        }
         if (stackPtr + 64 >= operandStack.size) {
-            val tmp = ByteArray(operandStack.size shl 1)
+            val tmp = ByteArray(operandStack.size + 64)
             System.arraycopy(
                 operandStack,
                 0,
@@ -32,7 +37,7 @@ class StackFrame(var pc: Int = 0) {
     }
 
     fun push(values: ByteArray) {
-        require(values.size in listOf(1, 2, 4, 8))
+        // require(values.size in listOf(1, 2, 4, 8))
         for (byte in values) {
             operandStack[stackPtr++] = byte
         }

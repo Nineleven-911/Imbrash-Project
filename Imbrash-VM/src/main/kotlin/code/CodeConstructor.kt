@@ -1,10 +1,13 @@
 package hairinne.ip.vm.code
 
-import hairinne.ip.vm.code.Bytecode.labelRetransfer
-
 class CodeConstructor {
     private val codes: MutableList<Byte> = mutableListOf()
+    private val functions: MutableList<Function> = mutableListOf()
     private var returned = false
+
+    private var isFirstBuildingCurrentFunction: Boolean = false
+    private var currentFunctionId: Long = 0
+    private var currentFunctionStart: Int = 0
 
     private fun transfer(value: Long): List<Byte> {
         val byteCount = 8
@@ -52,26 +55,10 @@ class CodeConstructor {
         return this
     }
 
-    fun prints(characters: String): CodeConstructor {
-        for (char in characters) {
-            val code: Int = char.code
-            val byteCount: Int = (bits(code) + 7) / 8
-            this.add(
-                Bytecode.PUSH, labelRetransfer(byteCount), code,
-                Bytecode.PRT_C, byteCount,
-                Bytecode.POP, labelRetransfer(byteCount)
-            )
-        }
-        return this
-    }
-
     fun ret(label: Int = 0): CodeConstructor {
         add(
-            Bytecode.RET,
+            Bytecode.RET, label.toByte()
         )
-        if (label != 0) {
-            add(label.toByte())
-        }
         returned = true
         return this
     }
@@ -80,37 +67,62 @@ class CodeConstructor {
         if (!returned) {
             throw IllegalArgumentException("Code is not returned.")
         }
+        functions.add(
+            Function(currentFunctionId, currentFunctionStart, codes.size)
+        )
+        println(functions)
         return codes
     }
 
     fun helloWorld(): CodeConstructor {
         return CodeConstructor().add(
-            Bytecode.PUSH, 0, 'H'.code,
-            Bytecode.PRT_C, 1,
-            Bytecode.PUSH, 0, 'e'.code,
-            Bytecode.PRT_C, 1,
-            Bytecode.PUSH, 0, 'l'.code,
-            Bytecode.PRT_C, 1,
-            Bytecode.PUSH, 0, 'l'.code,
-            Bytecode.PRT_C, 1,
-            Bytecode.PUSH, 0, 'o'.code,
-            Bytecode.PRT_C, 1,
-            Bytecode.PUSH, 0, ','.code,
-            Bytecode.PRT_C, 1,
-            Bytecode.PUSH, 0, ' '.code,
-            Bytecode.PRT_C, 1,
-            Bytecode.PUSH, 0, 'W'.code,
-            Bytecode.PRT_C, 1,
-            Bytecode.PUSH, 0, 'o'.code,
-            Bytecode.PRT_C, 1,
-            Bytecode.PUSH, 0, 'r'.code,
-            Bytecode.PRT_C, 1,
-            Bytecode.PUSH, 0, 'l'.code,
-            Bytecode.PRT_C, 1,
-            Bytecode.PUSH, 0, 'd'.code,
-            Bytecode.PRT_C, 1,
-            Bytecode.PUSH, 0, '!'.code,
-            Bytecode.PRT_C, 1
+            Bytecode.PUSH, 2, 0, 0, 0, 'H'.code,
+            Bytecode.PRT_C,
+            Bytecode.PUSH, 2, 0, 0, 0, 'e'.code,
+            Bytecode.PRT_C,
+            Bytecode.PUSH, 2, 0, 0, 0, 'l'.code,
+            Bytecode.PRT_C,
+            Bytecode.PUSH, 2, 0, 0, 0, 'l'.code,
+            Bytecode.PRT_C,
+            Bytecode.PUSH, 2, 0, 0, 0, 'o'.code,
+            Bytecode.PRT_C,
+            Bytecode.PUSH, 2, 0, 0, 0, ','.code,
+            Bytecode.PRT_C,
+            Bytecode.PUSH, 2, 0, 0, 0, ' '.code,
+            Bytecode.PRT_C,
+            Bytecode.PUSH, 2, 0, 0, 0, 'W'.code,
+            Bytecode.PRT_C,
+            Bytecode.PUSH, 2, 0, 0, 0, 'o'.code,
+            Bytecode.PRT_C,
+            Bytecode.PUSH, 2, 0, 0, 0, 'r'.code,
+            Bytecode.PRT_C,
+            Bytecode.PUSH, 2, 0, 0, 0, 'l'.code,
+            Bytecode.PRT_C,
+            Bytecode.PUSH, 2, 0, 0, 0, 'd'.code,
+            Bytecode.PRT_C,
+            Bytecode.PUSH, 2, 0, 0, 0, '!'.code,
+            Bytecode.PRT_C
         ).ret()
+    }
+
+    fun fibonacci(): CodeConstructor {
+        TODO()
+    }
+
+    fun getFunctions(): List<Function> {
+        return functions
+    }
+
+    fun function(id: Long): CodeConstructor {
+        if (isFirstBuildingCurrentFunction) {
+            isFirstBuildingCurrentFunction = false
+        } else {
+            functions.add(
+                Function(currentFunctionId, currentFunctionStart, codes.size)
+            )
+        }
+        currentFunctionId = id
+        currentFunctionStart = codes.size
+        return this
     }
 }

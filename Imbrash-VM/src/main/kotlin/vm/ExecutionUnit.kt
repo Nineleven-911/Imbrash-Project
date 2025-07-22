@@ -20,6 +20,11 @@ class ExecutionUnit(
     val module: Module,
     val functions: Array<Function> // Use Array for better performance
 ) {
+
+    companion object {
+        const val MAX_STACK_SIZE = 1024
+    }
+
     val stack: Stack<StackFrame> = Stack()
 
     /**
@@ -28,15 +33,15 @@ class ExecutionUnit(
      * @return IntRange of function's body with [start, end)
      */
     fun findFunction(id: Long): IntRange {
-        val range = functions.find { it.id.id == id }?.location?.toRange()
-        return range ?: throw EntrypointNotFoundException(this, "Function's entrypoint not found")
+        return getFunction(functions, id).getRange()
     }
 
     fun execute() {
         stack.push(StackFrame())
         var executing: StackFrame = stack.peek()
-        // While compiling, the compiler will add an entrypoint function, now it's not written.
-        // executing.pc = findFunction(0).start
+        // While compiling, the compiler will add an entrypoint function
+        val function = findFunction(0)
+        executing.pc = function.first
         val code = module.code
 
         while (true) {
@@ -55,7 +60,7 @@ class ExecutionUnit(
                     if (byteCount > executing.size()) {
                         throw EmptyOperandStackException(
                             this,
-                            "Stack is empty. Pop `null` instead!"
+                            "Stack is empty. Should stack pop `null` instead?"
                         )
                     }
                     executing.pop(byteCount)
@@ -85,32 +90,27 @@ class ExecutionUnit(
                         )
                     }
                     stack.pop()
-                    if (stack.isEmpty() or (label == 0.toByte())) {
-                        return
-                    } else {
-                        executing = stack.peek()
-                    }
+                    executing = stack.peek()
                 }
                 Bytecode.CALL -> {
-                    val id: Byte = code[executing.pc++]
-                    val label: Byte = code[executing.pc++]
-                    require(label in 0 until 5)
-                    val frame = StackFrame(findFunction(id.toLong()).start)
-                    stack.push(frame)
-
-                    if (label != 0.toByte()) {
-                        val size: Int = Bytecode.labelTransfer(label)
-                        executing.copyStackValues(frame, size)
+                    require(stack.size < MAX_STACK_SIZE) {
+                        "Stack Overflow ($MAX_STACK_SIZE). You should open your browser if you want to join 'StackOverflow'."
                     }
+                    var id = 0L
+                    for (i in 0 until 8) {
+                        id = (id shl (i*8)) + code[executing.pc++].toLong()
+                    }
+                    val bytesToPut: UByte = code[executing.pc++].toUByte()
+                    val frame = StackFrame(findFunction(id).first)
+                    stack.push(frame)
+                    executing.copyStackValues(frame, bytesToPut.toInt())
                     executing = frame
                 }
                 Bytecode.PRT_C -> {
-                    val label = code[executing.pc++]
-                    require(label in 1..4)
                     print(
                         Unicodes.decode(
                             executing.pop(
-                                label.toInt()
+                                4
                             ).toLong().toInt()
                         )
                     )
@@ -179,6 +179,8 @@ class ExecutionUnit(
                         )
                     }
                 }
+
+                Debugs.DEBUG -> executing.pc = Debugs.debug(this)
             }
         }
     }
@@ -189,6 +191,14 @@ class ExecutionUnit(
         } catch (e: Exception) {
             throw RuntimeException(this, "Execute failed. $e")
         }
+    }
+
+
+    /**
+     * Operator [] will return the byte of cs of eu.
+     */
+    operator fun get(index: Int): Byte {
+        return module.code[index]
     }
 }
 
