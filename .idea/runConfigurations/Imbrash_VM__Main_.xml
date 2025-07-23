@@ -1,0 +1,12 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Imbrash-VM [Main]" type="JetRunConfigurationType">
+    <option name="MAIN_CLASS_NAME" value="hairinne.ip.vm.MainKt" />
+    <module name="Imbrash-Project.Imbrash-VM.main" />
+    <shortenClasspath name="NONE" />
+    <option name="VM_PARAMETERS" value="-Dfile.encoding=UTF-8 -Dsun.stdout.encoding=UTF-8 -Dsun.stderr.encoding=UTF-8" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+    <method v="2">
+      <option name="RunConfigurationTask" enabled="true" run_configuration_name="[Imbrash-VM] Build" run_configuration_type="GradleRunConfiguration" />
+    </method>
+  </configuration>
+</component>

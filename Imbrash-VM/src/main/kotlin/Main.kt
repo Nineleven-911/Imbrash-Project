@@ -6,7 +6,10 @@ import hairinne.ip.vm.code.CodeConstructor
 import hairinne.ip.vm.code.Module
 import hairinne.ip.vm.vm.ExecutionUnit
 import hairinne.ip.vm.vm.VMProperties
-import hairinne.utils.*
+import hairinne.utils.Action
+import hairinne.utils.Argument
+import hairinne.utils.ArgumentParser
+import hairinne.utils.ResourceReader
 import kotlin.system.exitProcess
 
 fun main(args: Array<String>) {
@@ -22,9 +25,9 @@ fun main(args: Array<String>) {
         .ret(0)
         .function(1) // Function Add&Print
         .add(Bytecode.BINARY_OP, BinaryOperator.ADD)
+        .printf("Result: ")
         .add(Bytecode.PRT, 0)
-        .add(Bytecode.PUSH, 2, 0, 0, 0, '\n'.code)
-        .add(Bytecode.PRT_C)
+        .printf("\n")
         .ret(0)
     )
 
@@ -32,24 +35,23 @@ fun main(args: Array<String>) {
         constructor.build()
     )
 
+    module.disassembledCS("C:\\Users\\AW\\Desktop\\DA.txt")
+
     val executionUnit = ExecutionUnit(
         module,
         constructor.getFunctions().toTypedArray()
     )
-
-    // This Code will calculate (0xFF + 0xFE).toByte(), result is -3
     executionUnit.execute()
 }
 
 fun initialize(args: List<String>) {
-    println("Start with arguments: $args")
     val parser = ArgumentParser()
     parser.extends(
         Argument(
             listOf("--operand-stack-max-size", "-osms", "-operand-stack-max"),
             "OperandStackMaxSize",
             Action.STORE_INT,
-            default = 4
+            default = 4096
         ), Argument(
             listOf("--call-stack-deep", "-csd", "--recursive-limit", "-rl"),
             "RecursiveLimit",
@@ -74,17 +76,16 @@ fun initialize(args: List<String>) {
         val parsedArgs = parser.parseArgs(args)
 
         if (!parsedArgs.exists("PackageName") && !parsedArgs.exists("ModuleName")) {
-            throw ArgumentNotFoundException("Must specify PackageName or ModuleName")
+            // throw ArgumentNotFoundException("Must specify PackageName or ModuleName")
         }
 
         VMProperties.set(
-            parsedArgs.getIfNotNull<Int>("OperandStackMaxSize") shl 20,
+            parsedArgs.getIfNotNull<Int>("OperandStackMaxSize") shl 10,
             parsedArgs.getIfNotNull<Int>("RecursiveLimit"),
         )
     } catch (e: Throwable) {
-        println(e.message)
-        println(e.stackTrace)
-        println(ResourceReader.readFile("vm/ArgumentUsage.txt"))
+        e.printStackTrace()
+        System.err.println(ResourceReader.readFile("vm/ArgumentUsage.txt"))
         exitProcess(0)
     }
 }

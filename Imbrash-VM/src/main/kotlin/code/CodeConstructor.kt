@@ -1,5 +1,8 @@
 package hairinne.ip.vm.code
 
+import hairinne.utils.Unicodes
+import hairinne.utils.Unicodes.forEachCodePoint
+
 class CodeConstructor {
     private val codes: MutableList<Byte> = mutableListOf()
     private val functions: MutableList<Function> = mutableListOf()
@@ -73,35 +76,27 @@ class CodeConstructor {
         return codes
     }
 
-    fun helloWorld(): CodeConstructor {
-        return CodeConstructor().add(
-            Bytecode.PUSH, 2, 0, 0, 0, 'H'.code,
-            Bytecode.PRT_C,
-            Bytecode.PUSH, 2, 0, 0, 0, 'e'.code,
-            Bytecode.PRT_C,
-            Bytecode.PUSH, 2, 0, 0, 0, 'l'.code,
-            Bytecode.PRT_C,
-            Bytecode.PUSH, 2, 0, 0, 0, 'l'.code,
-            Bytecode.PRT_C,
-            Bytecode.PUSH, 2, 0, 0, 0, 'o'.code,
-            Bytecode.PRT_C,
-            Bytecode.PUSH, 2, 0, 0, 0, ','.code,
-            Bytecode.PRT_C,
-            Bytecode.PUSH, 2, 0, 0, 0, ' '.code,
-            Bytecode.PRT_C,
-            Bytecode.PUSH, 2, 0, 0, 0, 'W'.code,
-            Bytecode.PRT_C,
-            Bytecode.PUSH, 2, 0, 0, 0, 'o'.code,
-            Bytecode.PRT_C,
-            Bytecode.PUSH, 2, 0, 0, 0, 'r'.code,
-            Bytecode.PRT_C,
-            Bytecode.PUSH, 2, 0, 0, 0, 'l'.code,
-            Bytecode.PRT_C,
-            Bytecode.PUSH, 2, 0, 0, 0, 'd'.code,
-            Bytecode.PRT_C,
-            Bytecode.PUSH, 2, 0, 0, 0, '!'.code,
-            Bytecode.PRT_C
-        ).ret()
+    fun printf(string: String): CodeConstructor {
+        string.forEachCodePoint {
+            add(Bytecode.PUSH, 2)
+            if (Unicodes.isSurrogatePair(it)) {
+                add(
+                    ((it and 0xFF000000.toInt()) shr 8 * 3).toByte(),
+                    ((it and 0xFF0000) shr 8 * 2).toByte(),
+                    ((it and 0xFF00) shr 8).toByte(),
+                    (it and 0xFF).toByte()
+                )
+            } else {
+                add(
+                    0, 0,
+                    ((it and 0xFF00) shr 8).toByte(),
+                    (it and 0xFF).toByte()
+                )
+            }
+            add(Bytecode.PRT_C)
+        }
+
+        return this
     }
 
     fun fibonacci(): CodeConstructor {

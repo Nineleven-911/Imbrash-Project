@@ -89,15 +89,11 @@ class ArgumentParser(val argRules: MutableList<Argument> = mutableListOf()) {
         val parsedArgs = mutableMapOf<String, Any?>()
         val systemProperties = mutableMapOf<String, String?>()
 
-        if (args.map {
-                argRules.find { it1 ->
-                    it1.flags.containsAll(listOf("-h", "--help"))
-                }!!.flags.contains(it)
-            }.contains(true)) {
+        if (args.map { it in listOf("--help", "-h", "-help") }.contains(true)) {
             throw Exception()
         }
 
-        if (args.map { it == "--version" }.contains(true)) {
+        if (args.map { it in listOf("--version", "-v", "-version")}.contains(true)) {
             println(ResourceReader.readFile("initials/vm/version.txt"))
             exitProcess(0)
         }

@@ -48,6 +48,8 @@ object Debugs {
     const val ERROR: Byte = 2
 
     const val PRT_PC: Byte = 0x01
+    const val PRT_STACK: Byte = 0x02
+    const val PRT_CALLING_STACK: Byte = 0x04
 
     fun debug(eu: ExecutionUnit): Int {
         val frame = eu.stack.peek()
@@ -65,6 +67,8 @@ object Debugs {
         // Match Debug Behavior
         when (eu[ptr++]) {
             PRT_PC -> println("Program Counter = ${frame.pc - 1}, Next is ${frame.pc}")
+            PRT_STACK -> println("Operand Stack: $frame")
+            PRT_CALLING_STACK -> println("Calling Stack: ${eu.stack}")
         }
         return ptr
     }

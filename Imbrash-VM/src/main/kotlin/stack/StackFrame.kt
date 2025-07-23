@@ -11,7 +11,7 @@ class StackFrame(var pc: Int = 0) {
 
     private fun expandable() {
         if (operandStack.size + 64 >= operandStackMaxSize) {
-            throw IterableOutOfBoundsException(null, "Come on! Your stack storages ${operandStackMaxSize shr 20} MB data!")
+            throw IterableOutOfBoundsException(null, "Come on! Your stack storages ${operandStackMaxSize shr 10} Integers!")
         }
         if (stackPtr + 64 >= operandStack.size) {
             val tmp = ByteArray(operandStack.size + 64)

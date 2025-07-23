@@ -1,5 +1,4 @@
-Imbrash SE Virtual Machine
-Imbrash Platform, IVM-E Binary
-
+Imbrash Platform SE Binary
+IBinary Executor B-64
 Version Indev-Alpha-1.0.0+32 (Build 32.0)
 CDE-250722.204341

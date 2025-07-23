@@ -1,8 +1,8 @@
 package hairinne.ip.vm.vm
 
 data object VMProperties {
-    var operandStackMaxSize: Int = 0
-    var recursiveLimit: Int = 0
+    var operandStackMaxSize: Int = 4096
+    var recursiveLimit: Int = 1024
 
     fun set(operandStackMaxSize: Int, recursiveLimit: Int) {
         this.operandStackMaxSize = operandStackMaxSize
