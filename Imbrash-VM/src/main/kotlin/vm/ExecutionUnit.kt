@@ -93,7 +93,7 @@ class ExecutionUnit(
                     }
                     var id = 0L
                     for (i in 0 until 8) {
-                        id = (id shl (i*8)) + code[executing.pc++].toLong()
+                        id = (id shl (i*8)) + (code[executing.pc++].toInt() and 0xFF)
                     }
                     val bytesToPut: UByte = code[executing.pc++].toUByte()
                     val frame = StackFrame(findFunction(id).first)
@@ -173,6 +173,13 @@ class ExecutionUnit(
                             ret.toBits().toByteArray().toByteArray()
                         )
                     }
+                }
+                Bytecode.GOTO -> {
+                    var offset = 0
+                    for (i in 0 until 4) {
+                        offset = (offset shl 8) + (code[executing.pc++].toInt() and 0xFF)
+                    }
+                    executing.pc = offset
                 }
 
                 Debugs.DEBUG -> executing.pc = Debugs.debug(this)

@@ -58,9 +58,9 @@ data class Module(
         while (ptr < code.size) {
             when (code[ptr++]) {
                 Bytecode.PUSH -> {
+                    val p = ptr - 1
                     val label = code[ptr++]
                     val byteCount = Bytecode.labelTransfer(label)
-                    val p = ptr - 1
                     var number = 0UL
                     var builder = "PUSH $label "
                     for (i in 0 until byteCount) {
@@ -77,7 +77,7 @@ data class Module(
                 }
                 Bytecode.PRT -> {
                     val label = code[ptr++]
-                    asm.append(line++, ptr - 1, "PRT $label")
+                    asm.append(line++, ptr - 2, "PRT $label")
                 }
                 Bytecode.RET -> {
                     val returns = code[ptr++]
@@ -93,11 +93,11 @@ data class Module(
                     asm.append(line++, p, "CALL $id, $bitCount")
                 }
                 Bytecode.PRT_C -> {
-                    asm.append(line++, ptr - 1, "PRT_C ")
+                    asm.append(line++, ptr - 1, "PRT_C")
                 }
                 Bytecode.BINARY_OP -> {
                     val op = code[ptr++]
-                    asm.append(line++, ptr - 1, "BINARY_OP ${
+                    asm.append(line++, ptr - 2, "BINARY_OP ${
                         when (op) {
                             BinaryOperator.ADD -> "ADD"
                             BinaryOperator.SUB -> "SUB"
@@ -107,6 +107,15 @@ data class Module(
                             else -> "UNKNOWN"
                         }
                     }")
+                }
+
+                Bytecode.GOTO -> {
+                    val p = ptr - 1
+                    var number = 0u
+                    for (i in 0 until 4) {
+                        number = (number shl 8) + (code[ptr++].toInt() and 0xFF).toUInt()
+                    }
+                    asm.append(line++, p, "GOTO $number")
                 }
                 else -> {
                     asm.append(line++, ptr - 1, "UNKNOWN")

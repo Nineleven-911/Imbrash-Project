@@ -25,7 +25,7 @@ fun main(args: Array<String>) {
         .ret(0)
         .function(1) // Function Add&Print
         .add(Bytecode.BINARY_OP, BinaryOperator.ADD)
-        .printf("💗杂鱼~💗杂鱼~ 主人真是个杂鱼~💗")
+        .printf("💗杂鱼~💗杂鱼~ 主人真是个💗杂鱼~💗")
         .add(Bytecode.PRT, 0)
         .printf("\n")
         .ret(0)
@@ -33,18 +33,24 @@ fun main(args: Array<String>) {
 
     val constructor2 = (CodeConstructor()
         .function(0) // Function Main
-        .add(Bytecode.CALL, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+        .add(Bytecode.PUSH, 0, 0)
+        .add(Bytecode.PUSH, 0, 1)
+        .add(Bytecode.BINARY_OP, BinaryOperator.ADD)
+        .add(Bytecode.PRT, 0)
+        .printf(" ")
+        .add(Bytecode.GOTO, 0, 0, 0, 3)
         .ret(0)
     )
     val module = Module(
-        constructor1.build()
+        constructor2.build()
     )
+    print(module.code)
 
     module.disassembledCS("C:\\Users\\AW\\Desktop\\DA.txt")
 
     val executionUnit = ExecutionUnit(
         module,
-        constructor1.getFunctions().toTypedArray()
+        constructor2.getFunctions().toTypedArray()
     )
     executionUnit.execute()
 }

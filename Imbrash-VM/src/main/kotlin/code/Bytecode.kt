@@ -5,13 +5,15 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 object Bytecode {
-    const val PUSH: Byte = 0x00 /* Labels: 0-3 */
-    const val POP: Byte = 0x01 /* Labels: 0-3 */
-    const val PRT: Byte = 0x02 /* Labels: 0-3 */
-    const val RET: Byte = 0x03 /* Labels: 0-4 */
-    const val CALL: Byte = 0x04 /* Labels: 0-4 */
-    const val PRT_C: Byte = 0x05
+    const val PUSH     : Byte = 0x00 /* Labels: 0-3 */
+    const val POP      : Byte = 0x01 /* Labels: 0-3 */
+    const val PRT      : Byte = 0x02 /* Labels: 0-3 */
+    const val RET      : Byte = 0x03 /* Labels: 0-4 */
+    const val CALL     : Byte = 0x04 /* Labels: 0-4 */
+    const val PRT_C    : Byte = 0x05
     const val BINARY_OP: Byte = 0x06 /* Look at object: BinaryOperator */
+    const val GOTO     : Byte = 0x07
+    const val IF       : Byte = 0x08 /* Look at object: IfConditionalJump */
 
     fun labelTransfer(label: Byte): Int {
         return 1 shl label.toInt()
@@ -38,6 +40,24 @@ object BinaryOperator {
     const val MUL: Byte = 0x02
     const val DIV: Byte = 0x03
     const val MOD: Byte = 0x04
+}
+
+object IfConditionalJump {
+    const val EQ: Byte = 0x00 // ==
+    const val NE: Byte = 0x01 // !=
+    const val LT: Byte = 0x02 // <
+    const val GE: Byte = 0x03 // >=
+    const val GT: Byte = 0x04 // >
+    const val LE: Byte = 0x05 // <=
+
+    object Integer {
+        const val CMP_EQ: Byte = 0x06
+        const val CMP_NE: Byte = 0x07
+        const val CMP_LT: Byte = 0x08
+        const val CMP_GE: Byte = 0x09
+        const val CMP_GT: Byte = 0x0A
+        const val CMP_LE: Byte = 0x0B
+    }
 }
 
 object Debugs {
