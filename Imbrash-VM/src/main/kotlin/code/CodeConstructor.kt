@@ -5,7 +5,7 @@ class CodeConstructor {
     private val functions: MutableList<Function> = mutableListOf()
     private var returned = false
 
-    private var isFirstBuildingCurrentFunction: Boolean = false
+    private var isFirstBuildingCurrentFunction: Boolean = true
     private var currentFunctionId: Long = 0
     private var currentFunctionStart: Int = 0
 
@@ -70,7 +70,6 @@ class CodeConstructor {
         functions.add(
             Function(currentFunctionId, currentFunctionStart, codes.size)
         )
-        println(functions)
         return codes
     }
 

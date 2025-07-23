@@ -1,1 +1,2 @@
-NOT IMPLEMENTED
+[Usage] 用法
+  java -jar Imbrash-VM-xxx.jar

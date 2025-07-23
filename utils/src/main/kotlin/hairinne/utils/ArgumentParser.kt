@@ -12,11 +12,13 @@ enum class Action {
     STORE_LONG
 }
 
+data object NotProvided
+
 data class Argument(
     val flags: List<String>,
     val name: String = "",
     val action: Action,
-    val default: Any? = null,
+    val default: Any? = NotProvided,
     val required: Boolean = false
 )
 
@@ -41,11 +43,14 @@ data class ParsedArgs(
             )
         }
     ): T {
-        return get(key) ?: default()
+        val value = args[key]
+        if (value is NotProvided)
+            return default()
+        return value as T
     }
 
     fun exists(key: String): Boolean {
-        return args.containsKey(key)
+        return args.containsKey(key) && args[key] !is NotProvided
     }
 
     fun getSystemProperty(
@@ -54,7 +59,7 @@ data class ParsedArgs(
             throw ArgumentNotFoundException(
                 key,
                 "There's not such argument in line. " +
-                        "This should not be occur in the case of arguments has default value."
+                        "This should not be occurred in the case of arguments has default value."
             )
         }
     ): String {

@@ -13,13 +13,18 @@ fun main(args: Array<String>) {
     initialize(args.toList())
     val constructor = (CodeConstructor()
         .function(0) // Function Main
-        .add(Bytecode.PUSH, 0, 0xff)
-        .add(Bytecode.PUSH, 0, 0xfe)
+        .add(Bytecode.PUSH, 0, 0xFF)
+        .add(Bytecode.PUSH, 0, 0xFE)
+        .add(Bytecode.CALL, 0, 0, 0, 0, 0, 0, 0, 1, 2)
+        .add(Bytecode.PUSH, 0, 0xFF)
+        .add(Bytecode.PUSH, 0, 0x01)
         .add(Bytecode.CALL, 0, 0, 0, 0, 0, 0, 0, 1, 2)
         .ret(0)
         .function(1) // Function Add&Print
         .add(Bytecode.BINARY_OP, BinaryOperator.ADD)
-        .add(Bytecode.PRT, 0) // 21
+        .add(Bytecode.PRT, 0)
+        .add(Bytecode.PUSH, 2, 0, 0, 0, '\n'.code)
+        .add(Bytecode.PRT_C)
         .ret(0)
     )
 
@@ -69,14 +74,16 @@ fun initialize(args: List<String>) {
         val parsedArgs = parser.parseArgs(args)
 
         if (!parsedArgs.exists("PackageName") && !parsedArgs.exists("ModuleName")) {
-            throw ArgumentNotFoundException("PackageName or ModuleName")
+            throw ArgumentNotFoundException("Must specify PackageName or ModuleName")
         }
 
         VMProperties.set(
             parsedArgs.getIfNotNull<Int>("OperandStackMaxSize") shl 20,
             parsedArgs.getIfNotNull<Int>("RecursiveLimit"),
         )
-    } catch (_: Throwable) {
+    } catch (e: Throwable) {
+        println(e.message)
+        println(e.stackTrace)
         println(ResourceReader.readFile("vm/ArgumentUsage.txt"))
         exitProcess(0)
     }
