@@ -5,6 +5,7 @@ import java.io.File
 data class Module(
     val code: MutableList<Byte> = mutableListOf()
 ) {
+    // Temporary put here
     private class AssemblyBuilder {
         private data class Command(
             var column: Int = 0,
