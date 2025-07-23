@@ -94,8 +94,8 @@ class CodeConstructor {
                 )
             }
             add(Bytecode.PRT_C)
+            add(Bytecode.POP, 2)
         }
-
         return this
     }
 

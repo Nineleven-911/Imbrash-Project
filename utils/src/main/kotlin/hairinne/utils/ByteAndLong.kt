@@ -13,7 +13,7 @@ object ByteAndLong {
     fun List<Byte>.toLong(): Long {
         var result = 0L
         for (i in this) {
-            result = (result shl 8) + i.toLong()
+            result = (result shl 8) + (i.toLong() and 0xFF)
         }
         return result
     }

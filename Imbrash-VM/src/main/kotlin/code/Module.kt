@@ -61,11 +61,11 @@ data class Module(
                     val label = code[ptr++]
                     val byteCount = Bytecode.labelTransfer(label)
                     val p = ptr - 1
-                    var number = 0L
+                    var number = 0UL
                     var builder = "PUSH $label "
                     for (i in 0 until byteCount) {
                         val byte = code[ptr++]
-                        number = (number shl 8) + byte
+                        number = (number shl 8) + byte.toUByte()
                         builder += "0x${byte.toUByte().toString(16).uppercase()}"
                         builder += if (i != byteCount - 1) ", " else ""
                     }
@@ -84,12 +84,13 @@ data class Module(
                     asm.append(line++, ptr - 1, "RET $returns")
                 }
                 Bytecode.CALL -> {
+                    val p = ptr - 1
                     var id = 0L
                     for (i in 0 until 8) {
                         id = (id shl 8) + code[ptr++]
                     }
                     val bitCount = code[ptr++]
-                    asm.append(line++, ptr - 1, "CALL $id, $bitCount")
+                    asm.append(line++, p, "CALL $id, $bitCount")
                 }
                 Bytecode.PRT_C -> {
                     asm.append(line++, ptr - 1, "PRT_C ")

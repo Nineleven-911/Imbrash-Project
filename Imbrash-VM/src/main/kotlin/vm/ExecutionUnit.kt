@@ -20,11 +20,6 @@ class ExecutionUnit(
     val module: Module,
     val functions: Array<Function> // Use Array for better performance
 ) {
-
-    companion object {
-        const val MAX_STACK_SIZE = 1024
-    }
-
     val stack: Stack<StackFrame> = Stack()
 
     /**
@@ -93,8 +88,8 @@ class ExecutionUnit(
                     executing = stack.peek()
                 }
                 Bytecode.CALL -> {
-                    require(stack.size < MAX_STACK_SIZE) {
-                        "Stack Overflow ($MAX_STACK_SIZE). You should open your browser if you want to join 'StackOverflow'."
+                    require(stack.size < VMProperties.recursiveLimit) {
+                        "Stack Overflow (${stack.size + 1} > ${VMProperties.recursiveLimit}). You should open your browser if you want to join 'StackOverflow'."
                     }
                     var id = 0L
                     for (i in 0 until 8) {
@@ -109,7 +104,7 @@ class ExecutionUnit(
                 Bytecode.PRT_C -> {
                     print(
                         Unicodes.decode(
-                            executing.pop(
+                            executing.getValues(
                                 4
                             ).toLong().toInt()
                         )
@@ -181,6 +176,10 @@ class ExecutionUnit(
                 }
 
                 Debugs.DEBUG -> executing.pc = Debugs.debug(this)
+                else -> throw BytecodeNotFoundException(
+                    this,
+                    "Invalid bytecode. ${code[executing.pc - 1]}"
+                )
             }
         }
     }

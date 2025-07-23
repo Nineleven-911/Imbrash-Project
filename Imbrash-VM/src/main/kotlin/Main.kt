@@ -14,7 +14,7 @@ import kotlin.system.exitProcess
 
 fun main(args: Array<String>) {
     initialize(args.toList())
-    val constructor = (CodeConstructor()
+    val constructor1 = (CodeConstructor()
         .function(0) // Function Main
         .add(Bytecode.PUSH, 0, 0xFF)
         .add(Bytecode.PUSH, 0, 0xFE)
@@ -25,21 +25,26 @@ fun main(args: Array<String>) {
         .ret(0)
         .function(1) // Function Add&Print
         .add(Bytecode.BINARY_OP, BinaryOperator.ADD)
-        .printf("Result: ")
+        .printf("💗杂鱼~💗杂鱼~ 主人真是个杂鱼~💗")
         .add(Bytecode.PRT, 0)
         .printf("\n")
         .ret(0)
     )
 
+    val constructor2 = (CodeConstructor()
+        .function(0) // Function Main
+        .add(Bytecode.CALL, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+        .ret(0)
+    )
     val module = Module(
-        constructor.build()
+        constructor1.build()
     )
 
     module.disassembledCS("C:\\Users\\AW\\Desktop\\DA.txt")
 
     val executionUnit = ExecutionUnit(
         module,
-        constructor.getFunctions().toTypedArray()
+        constructor1.getFunctions().toTypedArray()
     )
     executionUnit.execute()
 }

@@ -50,15 +50,16 @@ object Unicodes {
     /**
      * 解码 Unicode 码点 (非拆分代理对)
      */
-    fun decode(codePoint: Int): Char {
-        return codePoint.toChar()
+    fun decode(codePoint: Int): String {
+        return String(Character.toChars(codePoint))
     }
 
     /**
      * 解码 Unicode 码点 (拆分代理对)
      */
-    fun decodeSingle(high: Byte, low: Byte): Char {
-        return decode((high.toInt() shl 16) + low)
+    fun decodeSingle(high: Byte, low: Byte): String {
+        val codePoint = (high.toInt() shl 16) or (low.toInt() and 0xFF)
+        return decode(codePoint)
     }
 
     /**
@@ -67,40 +68,29 @@ object Unicodes {
     fun decode(bytes: ByteArray): String {
         val chars = mutableListOf<Char>()
         var i = 0
-
         while (i < bytes.size) {
-            // 读取两个字节组成一个 UTF-16 代码单元
             if (i + 1 < bytes.size) {
                 val code = ((bytes[i].toInt() and 0xFF) shl 8) or (bytes[i + 1].toInt() and 0xFF)
                 val char = code.toChar()
-
-                // 检查是否为高位代理
                 if (Character.isHighSurrogate(char) && i + 3 < bytes.size) {
-                    // 读取下一个 UTF-16 代码单元（低位代理）
                     val lowCode = ((bytes[i + 2].toInt() and 0xFF) shl 8) or (bytes[i + 3].toInt() and 0xFF)
                     val lowChar = lowCode.toChar()
-
-                    // 检查是否为有效的低位代理
                     if (Character.isLowSurrogate(lowChar)) {
-                        // 组合成完整的码点并转换为字符
                         val codePoint = Character.toCodePoint(char, lowChar)
-                        val decodedChars = Character.toChars(codePoint)
-                        chars.addAll(decodedChars.toList())
-                        i += 4 // 跳过已处理的4个字节
+                        chars.addAll(Character.toChars(codePoint).toList())
+                        i += 4
                         continue
                     }
                 }
-
                 chars.add(char)
-                i += 2 // 跳过已处理的2个字节
+                i += 2
             } else {
-                // 处理剩余的单个字节（异常情况）
                 i++
             }
         }
-
         return String(chars.toCharArray())
     }
+
 
     inline fun String.forEachCodePoint(action: (Int) -> Unit) {
         var i = 0
@@ -112,6 +102,6 @@ object Unicodes {
     }
 
     fun isSurrogatePair(codePoint: Int): Boolean {
-        return Character.isSurrogate(codePoint.toChar())
+        return codePoint > 0xFFFF
     }
 }
