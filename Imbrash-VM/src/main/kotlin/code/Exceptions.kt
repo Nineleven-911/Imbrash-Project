@@ -1,6 +1,7 @@
 package hairinne.ip.vm.code
 
 import hairinne.ip.vm.vm.ExecutionUnit
+import hairinne.ip.vm.vm.VMProperties
 
 open class IVMBaseException(
     eu: ExecutionUnit?,
@@ -22,7 +23,18 @@ open class IVMBaseException(
             VM Properties:
               Function Call Stack: ${
                   if (eu.stack.isEmpty()) "[]" 
-                  else eu.stack.toList()
+                  else { 
+                      val a = eu.stack.toMutableList()
+                      if (VMProperties.callingStackOptimize == -1)
+                          a
+                      else {
+                          val optimized = a.size > VMProperties.callingStackOptimize
+                          while (a.size > VMProperties.callingStackOptimize) a.removeLast()
+                          "[${a.joinToString(", ")}" + (if (optimized) ", And ${
+                              eu.stack.size - VMProperties.callingStackOptimize
+                          } more..." else "") + "]"
+                      }
+                  }
               }
               Executing Program Counter: ${if (eu.stack.isEmpty()) "[ No Programs In EU ]" else eu.stack.peek().pc}
               Executing Program Operand Stack: ${
@@ -30,10 +42,9 @@ open class IVMBaseException(
             else eu.stack.peek().toString()
             }
             
-            VM Code:
-              ${eu.module}
+            ${eu.getStackTrace(16)}
         """.trimIndent() + "\n"
-    else "No VM provided."
+    else "No ExecutionUnit Provided."
 
     init {
         System.err.println(template)
@@ -87,4 +98,12 @@ class RuntimeException(
 ) : IVMBaseException(
     eu, details,
     "An error occurred during runtime."
+)
+
+class RecursionTooDeepException(
+    eu: ExecutionUnit?,
+    details: String,
+) : IVMBaseException(
+    eu, details,
+    "Recursion limit exceeded. Please check your code."
 )

@@ -1,13 +1,15 @@
 package hairinne.ip.vm.stack
 
 import hairinne.ip.vm.code.EmptyOperandStackException
+import hairinne.ip.vm.code.Function
 import hairinne.ip.vm.code.IterableOutOfBoundsException
 import hairinne.ip.vm.vm.VMProperties.operandStackMaxSize
 
-class StackFrame(var pc: Int = 0) {
+class StackFrame(var pc: Int = 0, val function: Function) {
     var operandStack = ByteArray(128)
     var stackPtr = 0
     var localVariables: MutableMap<Long, Long> = mutableMapOf()
+    var line = 0
 
     private fun expandable() {
         if (operandStack.size + 64 >= operandStackMaxSize) {
@@ -47,7 +49,7 @@ class StackFrame(var pc: Int = 0) {
     fun pop(size: Int): ByteArray {
         require(size in listOf(1, 2, 4, 8))
         if (stackPtr-size < 0) {
-            throw EmptyOperandStackException(null,"Stack pointer out of range.")
+            throw EmptyOperandStackException(null, "Stack pointer out of range.")
         }
         val ret = operandStack.slice(stackPtr - size until stackPtr).toByteArray()
         stackPtr -= size
@@ -79,8 +81,8 @@ class StackFrame(var pc: Int = 0) {
     }
 
     override fun toString(): String {
-        return "StackFrame(os=${
+        return "StackFrame(operandStack=${
             operandStack.slice(0 until stackPtr)
-        }, sptr=$stackPtr, pc=$pc, lv=$localVariables)"
+        }, stackPtr=$stackPtr, pc=$pc, localVars=$localVariables, FunctionMeta=$function)"
     }
 }

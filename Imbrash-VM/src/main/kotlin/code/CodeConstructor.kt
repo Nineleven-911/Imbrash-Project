@@ -11,6 +11,7 @@ class CodeConstructor {
     private var isFirstBuildingCurrentFunction: Boolean = true
     private var currentFunctionId: Long = 0
     private var currentFunctionStart: Int = 0
+    private var currentFunctionName: String = ""
 
     private fun transfer(value: Long): List<Byte> {
         val byteCount = 8
@@ -71,7 +72,7 @@ class CodeConstructor {
             throw IllegalArgumentException("Code is not returned.")
         }
         functions.add(
-            Function(currentFunctionId, currentFunctionStart, codes.size)
+            Function(currentFunctionId, currentFunctionStart, codes.size, currentFunctionName)
         )
         return codes
     }
@@ -107,16 +108,17 @@ class CodeConstructor {
         return functions
     }
 
-    fun function(id: Long): CodeConstructor {
+    fun function(id: Long, name: String): CodeConstructor {
         if (isFirstBuildingCurrentFunction) {
             isFirstBuildingCurrentFunction = false
         } else {
             functions.add(
-                Function(currentFunctionId, currentFunctionStart, codes.size)
+                Function(currentFunctionId, currentFunctionStart, codes.size, currentFunctionName)
             )
         }
         currentFunctionId = id
         currentFunctionStart = codes.size
+        currentFunctionName = name
         return this
     }
 }

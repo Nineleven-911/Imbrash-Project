@@ -13,7 +13,7 @@ object Bytecode {
     const val PRT_C    : Byte = 0x05
     const val BINARY_OP: Byte = 0x06 /* Look at object: BinaryOperator */
     const val GOTO     : Byte = 0x07
-    const val IF       : Byte = 0x08 /* Look at object: IfConditionalJump */
+    const val IF       : Byte = 0x08 /* Look at object: If */
 
     fun labelTransfer(label: Byte): Int {
         return 1 shl label.toInt()
@@ -42,7 +42,7 @@ object BinaryOperator {
     const val MOD: Byte = 0x04
 }
 
-object IfConditionalJump {
+object If { // If Conditional Jump
     const val EQ: Byte = 0x00 // ==
     const val NE: Byte = 0x01 // !=
     const val LT: Byte = 0x02 // <
@@ -50,7 +50,7 @@ object IfConditionalJump {
     const val GT: Byte = 0x04 // >
     const val LE: Byte = 0x05 // <=
 
-    object Integer {
+    object Integer { // These bytecode compares two element from operand stack
         const val CMP_EQ: Byte = 0x06
         const val CMP_NE: Byte = 0x07
         const val CMP_LT: Byte = 0x08

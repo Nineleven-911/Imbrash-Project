@@ -18,28 +18,28 @@ import java.util.*
  */
 
 class ExecutionUnit(
-    val module: Module,
-    val functions: Array<Function> // Use Array for better performance
+    val module: Module
 ) {
     val stack: Stack<StackFrame> = Stack()
+    val functions = module.functions.toTypedArray() // Use Array for better performance
 
     /**
      * Find function's entrypoint
      * @param id Function ID
-     * @return IntRange of function's body with [start, end)
+     * @return A `hairinne.ip.vm.code.Function` instance.
      */
-    fun findFunction(id: Long): IntRange {
-        return getFunction(functions, id).getRange()
+    fun findFunction(id: Long): Function {
+        return getFunction(functions, id)
     }
 
     fun execute() {
-        stack.push(StackFrame())
-        var executing: StackFrame = stack.peek()
         // While compiling, the compiler will add an entrypoint function
-        val function = findFunction(0)
-        executing.pc = function.first
+        var function = findFunction(0)
+        stack.push(StackFrame(function = function))
+        var executing: StackFrame = stack.peek()
+        executing.pc = function.start
         val code = module.code
-        val file = File("C:\\Users\\AW\\Desktop\\A.txt")
+        val file = File("A.txt")
         file.writeText("")
 
         while (true) {
@@ -84,8 +84,7 @@ class ExecutionUnit(
                     if (label != 0.toByte()) {
                         val size: Int = Bytecode.labelTransfer(label)
                         executing.copyStackValues(
-                            stack[stack.size - 2],
-                            size
+                            stack[stack.size - 2], size
                         )
                     }
                     stack.pop()
@@ -93,7 +92,10 @@ class ExecutionUnit(
                 }
                 Bytecode.CALL -> {
                     require(stack.size < VMProperties.recursiveLimit) {
-                        "Stack Overflow (${stack.size + 1} > ${VMProperties.recursiveLimit}). You should open your browser if you want to join 'StackOverflow'."
+                        throw RecursionTooDeepException(
+                            this,
+                            "Stack Overflow (${stack.size + 1} > ${VMProperties.recursiveLimit}). You should open your browser if you want to join 'StackOverflow'."
+                        )
                     }
                     val id =
                         ((code[executing.pc++].toInt() and 0xFF) shl 56).toLong() +
@@ -105,7 +107,8 @@ class ExecutionUnit(
                                 ((code[executing.pc++].toInt() and 0xFF) shl 8).toLong() +
                                 (code[executing.pc++].toInt() and 0xFF).toLong()
                     val bytesToPut: UByte = code[executing.pc++].toUByte()
-                    val frame = StackFrame(findFunction(id).first)
+                    function = findFunction(id)
+                    val frame = StackFrame(function.start, function)
                     stack.push(frame)
                     executing.copyStackValues(frame, bytesToPut.toInt())
                     executing = frame
@@ -191,6 +194,44 @@ class ExecutionUnit(
                                 (code[executing.pc++].toInt() and 0x000000FF)
                     executing.pc = offset
                 }
+                Bytecode.IF -> {
+                    val type = code[executing.pc++]
+                    val num = executing.pop(4).toLong().toInt()
+                    val offset =
+                        ((code[executing.pc++].toInt() shl 24) and 0xFF000000.toInt()) +
+                                ((code[executing.pc++].toInt() shl 16) and 0x00FF0000) +
+                                ((code[executing.pc++].toInt() shl 8) and 0x0000FF00) +
+                                (code[executing.pc++].toInt() and 0x000000FF)
+                    when (type) {
+                        If.EQ -> if (num == 0) executing.pc = offset
+                        If.NE -> if (num != 0) executing.pc = offset
+                        If.LT -> if (num < 0) executing.pc = offset
+                        If.GE -> if (num >= 0) executing.pc = offset
+                        If.GT -> if (num > 0) executing.pc = offset
+                        If.LE -> if (num <= 0) executing.pc = offset
+                        in If.Integer.CMP_EQ..If.Integer.CMP_LE -> {
+                            val num2 = executing.pop(4).toLong().toInt()
+                            when (type) {
+                                If.Integer.CMP_EQ -> if (num == num2) executing.pc = offset
+                                If.Integer.CMP_NE -> if (num != num2) executing.pc = offset
+                                If.Integer.CMP_LT -> if (num < num2) executing.pc = offset
+                                If.Integer.CMP_GE -> if (num >= num2) executing.pc = offset
+                                If.Integer.CMP_GT -> if (num > num2) executing.pc = offset
+                                If.Integer.CMP_LE -> if (num <= num2) executing.pc = offset
+                                else -> throw InvalidDataException(
+                                    this,
+                                    "Invalid IfConditionalJump.Integer type: $type"
+                                )
+                            }
+                        }
+                        else -> {
+                            throw InvalidDataException(
+                                this,
+                                "Invalid IfConditionalJump type: $type"
+                            )
+                        }
+                    }
+                }
 
                 Debugs.DEBUG -> executing.pc = Debugs.debug(this)
                 else -> throw BytecodeNotFoundException(
@@ -199,6 +240,7 @@ class ExecutionUnit(
                 )
             }
             file.appendText("${System.nanoTime() - time} ns\n")
+            executing.line++
         }
     }
 
@@ -216,6 +258,15 @@ class ExecutionUnit(
      */
     operator fun get(index: Int): Byte {
         return module.code[index]
+    }
+
+    fun getStackTrace(spaces: Int = 4): String {
+        val trace: MutableList<String> = mutableListOf()
+        for (frame in stack) {
+            trace.add(" ".repeat(spaces) + "at <Module>(${frame.function.name}:${frame.line})")
+        }
+        // multi-thread is not implemented yet
+        return "An exception occurred in Thread \"null\":\n${trace.joinToString("\n")}"
     }
 }
 

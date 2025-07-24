@@ -1,8 +1,8 @@
 package hairinne.ip.vm
 
-import hairinne.ip.vm.code.BinaryOperator
 import hairinne.ip.vm.code.Bytecode
 import hairinne.ip.vm.code.CodeConstructor
+import hairinne.ip.vm.code.If
 import hairinne.ip.vm.code.Module
 import hairinne.ip.vm.vm.ExecutionUnit
 import hairinne.ip.vm.vm.VMProperties
@@ -14,43 +14,33 @@ import kotlin.system.exitProcess
 
 fun main(args: Array<String>) {
     initialize(args.toList())
-    val constructor1 = (CodeConstructor()
-        .function(0) // Function Main
-        .add(Bytecode.PUSH, 0, 0xFF)
-        .add(Bytecode.PUSH, 0, 0xFE)
-        .add(Bytecode.CALL, 0, 0, 0, 0, 0, 0, 0, 1, 2)
-        .add(Bytecode.PUSH, 0, 0xFF)
-        .add(Bytecode.PUSH, 0, 0x01)
-        .add(Bytecode.CALL, 0, 0, 0, 0, 0, 0, 0, 1, 2)
+    val constructor = (CodeConstructor()
+        .function(0, "main")
+        .add(Bytecode.PUSH, 0, 3)
+        .add(Bytecode.CALL, 0, 0, 0, 0, 0, 0, 0, 1, 1)
         .ret(0)
-        .function(1) // Function Add&Print
-        .add(Bytecode.BINARY_OP, BinaryOperator.ADD)
-        .printf("💗杂鱼~💗杂鱼~ 主人真是个💗杂鱼~💗")
-        .add(Bytecode.PRT, 0)
-        .printf("\n")
-        .ret(0)
-    )
-
-    val constructor2 = (CodeConstructor()
-        .function(0) // Function Main
-        .add(Bytecode.PUSH, 0, 0)
+        .function(1, "aaa")
         .add(Bytecode.PUSH, 0, 1)
-        .add(Bytecode.BINARY_OP, BinaryOperator.ADD)
-        .add(Bytecode.PRT, 0)
-        .printf(" ")
-        .add(Bytecode.GOTO, 0, 0, 0, 3)
+        .add(Bytecode.IF, If.Integer.CMP_GT, 0,0,0,0/* Addr Here*/)
+        .add()
         .ret(0)
     )
+
+    val constructor2 = CodeConstructor()
+        .function(0, "main")
+        .add(Bytecode.CALL, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+        .ret(0)
+
+    val c = constructor2
     val module = Module(
-        constructor1.build()
+        c.build(),
+        c.getFunctions().toList()
     )
 
-    module.disassembledCS("C:\\Users\\AW\\Desktop\\DA.txt")
+    module.disassembledFT("DA.txt")
+    module.disassembledCS("DA.txt", true)
 
-    val executionUnit = ExecutionUnit(
-        module,
-        constructor1.getFunctions().toTypedArray()
-    )
+    val executionUnit = ExecutionUnit(module)
     executionUnit.execute()
 }
 
@@ -79,6 +69,11 @@ fun initialize(args: List<String>) {
             listOf("--module", "-mod", "-m"),
             "ModuleName",
             Action.STORE_STRING
+        ), Argument(
+            listOf("--cs-optimize-omissions", "--cs-opt-om", "-co"),
+            "CallingStackOptimize",
+            Action.STORE_INT,
+            default = 30
         )
     )
 
@@ -92,6 +87,7 @@ fun initialize(args: List<String>) {
         VMProperties.set(
             parsedArgs.getIfNotNull<Int>("OperandStackMaxSize") shl 10,
             parsedArgs.getIfNotNull<Int>("RecursiveLimit"),
+            parsedArgs.getIfNotNull<Int>("CallingStackOptimize")
         )
     } catch (e: Throwable) {
         e.printStackTrace()

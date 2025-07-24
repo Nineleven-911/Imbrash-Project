@@ -3,7 +3,8 @@ package hairinne.ip.vm.code
 import java.io.File
 
 data class Module(
-    val code: MutableList<Byte> = mutableListOf()
+    val code: MutableList<Byte> = mutableListOf(),
+    val functions: List<Function> = emptyList(),
 ) {
     // Temporary put here
     private class AssemblyBuilder {
@@ -50,7 +51,8 @@ data class Module(
     }
 
     // Temporary put here
-    fun disassembledCS(file: String) {
+    // Code Section
+    fun disassembledCS(file: String, append: Boolean = false) {
         var ptr = 0
         var line = 1
         val asm = AssemblyBuilder()
@@ -108,7 +110,6 @@ data class Module(
                         }
                     }")
                 }
-
                 Bytecode.GOTO -> {
                     val p = ptr - 1
                     var number = 0u
@@ -117,11 +118,64 @@ data class Module(
                     }
                     asm.append(line++, p, "GOTO $number")
                 }
+                Bytecode.IF -> {
+                    val p = ptr - 1
+                    val cond = code[ptr++]
+                    val offset =
+                        ((code[ptr++].toInt() shl 24) and 0xFF000000.toInt()) +
+                                ((code[ptr++].toInt() shl 16) and 0x00FF0000) +
+                                ((code[ptr++].toInt() shl 8) and 0x0000FF00) +
+                                (code[ptr++].toInt() and 0x000000FF)
+                    when (cond) {
+                        If.EQ -> asm.append(line++, p, "IF EQ, $offset")
+                        If.NE -> asm.append(line++, p, "IF NE, $offset")
+                        If.LT -> asm.append(line++, p, "IF LT, $offset")
+                        If.GE -> asm.append(line++, p, "IF GE, $offset")
+                        If.GT -> asm.append(line++, p, "IF GT, $offset")
+                        If.LE -> asm.append(line++, p, "IF LE, $offset")
+                        If.Integer.CMP_EQ -> asm.append(line++, p, "IF I_CMP_EQ, $offset")
+                        If.Integer.CMP_NE -> asm.append(line++, p, "IF I_CMP_NE, $offset")
+                        If.Integer.CMP_LT -> asm.append(line++, p, "IF I_CMP_LT, $offset")
+                        If.Integer.CMP_GE -> asm.append(line++, p, "IF I_CMP_GE, $offset")
+                        If.Integer.CMP_GT -> asm.append(line++, p, "IF I_CMP_GT, $offset")
+                        If.Integer.CMP_LE -> asm.append(line++, p, "IF I_CMP_LE, $offset")
+                        else -> {
+                            asm.append(line++, p, "IF UNKNOWN, $offset")
+                        }
+                    }
+                }
+
                 else -> {
                     asm.append(line++, ptr - 1, "UNKNOWN")
                 }
             }
         }
-        File(file).writeText(asm.toString())
+        if (append) {
+            File(file).appendText(asm.toString() + "\n\n")
+        } else {
+            File(file).writeText(asm.toString() + "\n\n")
+        }
     }
+
+    // Function Table
+    fun disassembledFT(file: String, append: Boolean = false) {
+        val table: MutableList<String> = mutableListOf()
+        for (function in functions) {
+            val name = function.name
+            val id = function.id
+            val start = function.start
+            val end = function.end
+            table.add("$id: $name, range: [$start, $end)")
+        }
+        val t = """Function Table: ${table.size}
+            |${table.joinToString("\n")}
+        """.trimMargin() + "\n\n"
+        if (append) {
+            File(file).appendText(t)
+        } else {
+            File(file).writeText(t)
+        }
+    }
+
+    // Temporary put here
 }
