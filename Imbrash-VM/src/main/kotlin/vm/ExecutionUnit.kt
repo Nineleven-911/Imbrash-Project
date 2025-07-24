@@ -13,7 +13,7 @@ import java.util.*
  *
  * Stack-based, Little endian
  *
- * @author Hairinne
+ * @author Hairinne-Mentine.
  */
 
 class ExecutionUnit(
@@ -64,7 +64,7 @@ class ExecutionUnit(
                     val label: Byte = code[executing.pc++]
                     require(label in 0 until 4)
                     print(
-                        executing.pop(
+                        executing.getValues(
                             Bytecode.labelTransfer(label)
                         ).toLong()
                     )

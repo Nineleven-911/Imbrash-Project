@@ -73,7 +73,7 @@ data class Module(
                 }
                 Bytecode.POP -> {
                     val label = code[ptr++]
-                    asm.append(line++, ptr - 1, "POP $label")
+                    asm.append(line++, ptr - 2, "POP $label")
                 }
                 Bytecode.PRT -> {
                     val label = code[ptr++]
@@ -81,7 +81,7 @@ data class Module(
                 }
                 Bytecode.RET -> {
                     val returns = code[ptr++]
-                    asm.append(line++, ptr - 1, "RET $returns")
+                    asm.append(line++, ptr - 2, "RET $returns")
                 }
                 Bytecode.CALL -> {
                     val p = ptr - 1

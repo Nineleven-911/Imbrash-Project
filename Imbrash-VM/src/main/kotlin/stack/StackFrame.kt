@@ -84,7 +84,7 @@ class StackFrame(var pc: Int = 0) {
 
     override fun toString(): String {
         return "StackFrame(os=${
-            operandStack.toList().dropLastWhile { it == 0.toByte() }
+            operandStack.slice(0 until stackPtr)
         }, sptr=$stackPtr, pc=$pc, lv=$localVariables)"
     }
 }

@@ -44,7 +44,6 @@ fun main(args: Array<String>) {
     val module = Module(
         constructor2.build()
     )
-    print(module.code)
 
     module.disassembledCS("C:\\Users\\AW\\Desktop\\DA.txt")
 
