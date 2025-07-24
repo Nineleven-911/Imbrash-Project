@@ -201,7 +201,7 @@ class ExecutionUnit(
 
 
     /**
-     * Operator [] will return the byte of cs of eu.
+     * Operator [] will return this.module.code[ index ] (CodeSegment)
      */
     operator fun get(index: Int): Byte {
         return module.code[index]
