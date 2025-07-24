@@ -42,14 +42,14 @@ fun main(args: Array<String>) {
         .ret(0)
     )
     val module = Module(
-        constructor2.build()
+        constructor1.build()
     )
 
     module.disassembledCS("C:\\Users\\AW\\Desktop\\DA.txt")
 
     val executionUnit = ExecutionUnit(
         module,
-        constructor2.getFunctions().toTypedArray()
+        constructor1.getFunctions().toTypedArray()
     )
     executionUnit.execute()
 }

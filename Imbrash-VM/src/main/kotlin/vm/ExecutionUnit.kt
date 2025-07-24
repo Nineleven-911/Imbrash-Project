@@ -6,6 +6,7 @@ import hairinne.ip.vm.stack.StackFrame
 import hairinne.utils.ByteAndLong.toByteArray
 import hairinne.utils.ByteAndLong.toLong
 import hairinne.utils.Unicodes
+import java.io.File
 import java.util.*
 
 /**
@@ -38,8 +39,11 @@ class ExecutionUnit(
         val function = findFunction(0)
         executing.pc = function.first
         val code = module.code
+        val file = File("C:\\Users\\AW\\Desktop\\A.txt")
+        file.writeText("")
 
         while (true) {
+            val time = System.nanoTime()
             when (code[executing.pc++]) {
                 Bytecode.PUSH -> {
                     val label = code[executing.pc++]
@@ -91,10 +95,15 @@ class ExecutionUnit(
                     require(stack.size < VMProperties.recursiveLimit) {
                         "Stack Overflow (${stack.size + 1} > ${VMProperties.recursiveLimit}). You should open your browser if you want to join 'StackOverflow'."
                     }
-                    var id = 0L
-                    for (i in 0 until 8) {
-                        id = (id shl (i*8)) + (code[executing.pc++].toInt() and 0xFF)
-                    }
+                    val id =
+                        ((code[executing.pc++].toInt() and 0xFF) shl 56).toLong() +
+                                ((code[executing.pc++].toInt() and 0xFF) shl 48).toLong() +
+                                ((code[executing.pc++].toInt() and 0xFF) shl 40).toLong() +
+                                ((code[executing.pc++].toInt() and 0xFF) shl 32).toLong() +
+                                ((code[executing.pc++].toInt() and 0xFF) shl 24).toLong() +
+                                ((code[executing.pc++].toInt() and 0xFF) shl 16).toLong() +
+                                ((code[executing.pc++].toInt() and 0xFF) shl 8).toLong() +
+                                (code[executing.pc++].toInt() and 0xFF).toLong()
                     val bytesToPut: UByte = code[executing.pc++].toUByte()
                     val frame = StackFrame(findFunction(id).first)
                     stack.push(frame)
@@ -175,10 +184,11 @@ class ExecutionUnit(
                     }
                 }
                 Bytecode.GOTO -> {
-                    var offset = 0
-                    for (i in 0 until 4) {
-                        offset = (offset shl 8) + (code[executing.pc++].toInt() and 0xFF)
-                    }
+                    val offset =
+                        ((code[executing.pc++].toInt() shl 24) and 0xFF000000.toInt()) +
+                                ((code[executing.pc++].toInt() shl 16) and 0x00FF0000) +
+                                ((code[executing.pc++].toInt() shl 8) and 0x0000FF00) +
+                                (code[executing.pc++].toInt() and 0x000000FF)
                     executing.pc = offset
                 }
 
@@ -188,6 +198,7 @@ class ExecutionUnit(
                     "Invalid bytecode. ${code[executing.pc - 1]}"
                 )
             }
+            file.appendText("${System.nanoTime() - time} ns\n")
         }
     }
 

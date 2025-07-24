@@ -59,10 +59,6 @@ class StackFrame(var pc: Int = 0) {
         return stackPtr
     }
 
-    fun getStack(): ByteArray {
-        return operandStack
-    }
-
     /**
      * Get stack values
      * @param size Count of bytes
