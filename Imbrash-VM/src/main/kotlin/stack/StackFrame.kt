@@ -1,19 +1,23 @@
 package hairinne.ip.vm.stack
 
 import hairinne.ip.vm.code.EmptyOperandStackException
-import hairinne.ip.vm.code.Function
+import hairinne.ip.vm.code.FunctionMeta
 import hairinne.ip.vm.code.IterableOutOfBoundsException
+import hairinne.ip.vm.code.NoSuchVariableException
 import hairinne.ip.vm.vm.VMProperties.operandStackMaxSize
 
-class StackFrame(var pc: Int = 0, val function: Function) {
-    var operandStack = ByteArray(128)
-    var stackPtr = 0
-    var localVariables: MutableMap<Long, Long> = mutableMapOf()
+class StackFrame(
+    var pc: Int = 0,
+    val function: FunctionMeta
+) {
+    private var operandStack = ByteArray(128)
+    private var localVariables: LongArray = LongArray(function.variableLength)
+    private var stackPtr = 0
     var line = 0
 
     private fun expandable() {
         if (operandStack.size + 64 >= operandStackMaxSize) {
-            throw IterableOutOfBoundsException(null, "Come on! Your stack storages ${operandStackMaxSize shr 10} Integers!")
+            throw IterableOutOfBoundsException(null, "Come on! Your stack storages $operandStackMaxSize Integers!")
         }
         if (stackPtr + 64 >= operandStack.size) {
             val tmp = ByteArray(operandStack.size + 64)
@@ -64,7 +68,7 @@ class StackFrame(var pc: Int = 0, val function: Function) {
     /**
      * Get stack values
      * @param size Count of bytes
-     * @return ByteArray
+     * @return [ByteArray]
      */
     fun getValues(size: Int): ByteArray {
         return operandStack.slice(stackPtr - size until stackPtr).toByteArray()
@@ -80,9 +84,24 @@ class StackFrame(var pc: Int = 0, val function: Function) {
         to.push(getValues(size))
     }
 
+    fun setValue(index: Int, address: Long) {
+        localVariables[index] = address
+    }
+
+    fun getValue(index: Int): Long {
+        if (index >= localVariables.size) {
+            throw NoSuchVariableException(
+                null,
+                "There's no such local variable in this scope."
+            )
+        }
+        return localVariables[index]
+
+    }
+
     override fun toString(): String {
         return "StackFrame(operandStack=${
             operandStack.slice(0 until stackPtr)
-        }, stackPtr=$stackPtr, pc=$pc, localVars=$localVariables, FunctionMeta=$function)"
+        }, stackPtr=$stackPtr, pc=$pc, localVars=${localVariables.toList()}, FunctionMeta=($function))"
     }
 }

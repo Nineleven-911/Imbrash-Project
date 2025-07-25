@@ -1,7 +1,6 @@
 package hairinne.ip.vm.vm
 
 import hairinne.ip.vm.code.*
-import hairinne.ip.vm.code.Function
 import hairinne.ip.vm.stack.StackFrame
 import hairinne.utils.ByteAndLong.toByteArray
 import hairinne.utils.ByteAndLong.toLong
@@ -14,26 +13,26 @@ import java.util.*
  *
  * Stack-based, Little endian
  *
- * @author Hairinne-Mentine.
+ * @author Hairinne, Mentine.
  */
 
 class ExecutionUnit(
     val module: Module
 ) {
     val stack: Stack<StackFrame> = Stack()
-    val functions = module.functions.toTypedArray() // Use Array for better performance
+    val functions = module.functions.toTypedArray()
+    // val heap: ByteArray = ByteArray()
 
     /**
      * Find function's entrypoint
-     * @param id Function ID
-     * @return A `hairinne.ip.vm.code.Function` instance.
+     * @param id FunctionMeta ID
+     * @return A [hairinne.ip.vm.code.FunctionMeta] instance.
      */
-    fun findFunction(id: Long): Function {
+    fun findFunction(id: Long): FunctionMeta {
         return getFunction(functions, id)
     }
 
     fun execute() {
-        // While compiling, the compiler will add an entrypoint function
         var function = findFunction(0)
         stack.push(StackFrame(function = function))
         var executing: StackFrame = stack.peek()
@@ -55,11 +54,11 @@ class ExecutionUnit(
                 }
                 Bytecode.POP -> {
                     val byteCount = Bytecode.labelTransfer(code[executing.pc++])
-                    require(byteCount in listOf(1, 2, 4, 8))
+                    require(byteCount in 0 until 4)
                     if (byteCount > executing.size()) {
                         throw EmptyOperandStackException(
                             this,
-                            "Stack is empty. Should stack pop `null` instead?"
+                            "Stack is empty or stack size is smaller than `byteCount`. Should stack pop `null` instead?"
                         )
                     }
                     executing.pop(byteCount)
@@ -254,7 +253,7 @@ class ExecutionUnit(
 
 
     /**
-     * Operator [] will return this.module.code[ index ] (CodeSegment)
+     * Operator [] will return this.module.code.get(index) (CodeSegment)
      */
     operator fun get(index: Int): Byte {
         return module.code[index]

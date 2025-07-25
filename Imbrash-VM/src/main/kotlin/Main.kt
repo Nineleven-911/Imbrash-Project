@@ -1,9 +1,6 @@
 package hairinne.ip.vm
 
-import hairinne.ip.vm.code.Bytecode
-import hairinne.ip.vm.code.CodeConstructor
-import hairinne.ip.vm.code.If
-import hairinne.ip.vm.code.Module
+import hairinne.ip.vm.code.*
 import hairinne.ip.vm.vm.ExecutionUnit
 import hairinne.ip.vm.vm.VMProperties
 import hairinne.utils.Action
@@ -16,14 +13,19 @@ fun main(args: Array<String>) {
     initialize(args.toList())
     val constructor = (CodeConstructor()
         .function(0, "main")
-        .add(Bytecode.PUSH, 0, 3)
-        .add(Bytecode.CALL, 0, 0, 0, 0, 0, 0, 0, 1, 1)
-        .ret(0)
-        .function(1, "aaa")
-        .add(Bytecode.PUSH, 0, 1)
-        .add(Bytecode.IF, If.Integer.CMP_GT, 0,0,0,0/* Addr Here*/)
-        .add()
-        .ret(0)
+        .add(
+            Bytecode.PUSH, 0, 3,
+            Bytecode.CALL, 0, 0, 0, 0, 0, 0, 0, 1, 1,
+            Bytecode.PRT, 0,
+        ).ret(0).function(1, "fibonacci")
+        .add(
+            Bytecode.PUSH, 0, 2,
+            Bytecode.IF, If.LE, 0, 0, 0, 27,
+            Bytecode.PUSH, 0, 1,
+            Bytecode.BINARY_OP, BinaryOperator.SUB,
+            Bytecode.PUSH, 0, 1,
+            Bytecode.RET, 1,
+        )
     )
 
     val constructor2 = CodeConstructor()
@@ -31,7 +33,7 @@ fun main(args: Array<String>) {
         .add(Bytecode.CALL, 0, 0, 0, 0, 0, 0, 0, 0, 0)
         .ret(0)
 
-    val c = constructor2
+    val c = constructor
     val module = Module(
         c.build(),
         c.getFunctions().toList()
@@ -70,7 +72,7 @@ fun initialize(args: List<String>) {
             "ModuleName",
             Action.STORE_STRING
         ), Argument(
-            listOf("--cs-optimize-omissions", "--cs-opt-om", "-co"),
+            listOf("--cs-optimize-omissions", "--cs-opt", "-co"),
             "CallingStackOptimize",
             Action.STORE_INT,
             default = 30

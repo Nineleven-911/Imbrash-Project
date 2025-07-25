@@ -4,7 +4,7 @@ import java.io.File
 
 data class Module(
     val code: MutableList<Byte> = mutableListOf(),
-    val functions: List<Function> = emptyList(),
+    val functions: List<FunctionMeta> = emptyList(),
 ) {
     // Temporary put here
     private class AssemblyBuilder {
@@ -157,7 +157,7 @@ data class Module(
         }
     }
 
-    // Function Table
+    // FunctionMeta Table
     fun disassembledFT(file: String, append: Boolean = false) {
         val table: MutableList<String> = mutableListOf()
         for (function in functions) {
@@ -165,9 +165,9 @@ data class Module(
             val id = function.id
             val start = function.start
             val end = function.end
-            table.add("$id: $name, range: [$start, $end)")
+            table.add("$id: $name, range: [$start, $end), LocalVariables require: ${function.variableLength}")
         }
-        val t = """Function Table: ${table.size}
+        val t = """FunctionMeta Table: ${table.size}
             |${table.joinToString("\n")}
         """.trimMargin() + "\n\n"
         if (append) {

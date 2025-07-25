@@ -21,7 +21,7 @@ open class IVMBaseException(
         if (eu != null)
         """
             VM Properties:
-              Function Call Stack: ${
+              FunctionMeta Call Stack: ${
                   if (eu.stack.isEmpty()) "[]" 
                   else { 
                       val a = eu.stack.toMutableList()
@@ -105,5 +105,13 @@ class RecursionTooDeepException(
     details: String,
 ) : IVMBaseException(
     eu, details,
-    "Recursion limit exceeded. Please check your code."
+    "Recursion limit exceeded."
+)
+
+class NoSuchVariableException(
+    eu: ExecutionUnit?,
+    details: String,
+) : IVMBaseException(
+    eu, details,
+    "There's no such local variable in this scope."
 )

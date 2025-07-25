@@ -5,13 +5,14 @@ import hairinne.utils.Unicodes.forEachCodePoint
 
 class CodeConstructor {
     private val codes: MutableList<Byte> = mutableListOf()
-    private val functions: MutableList<Function> = mutableListOf()
+    private val functionMetas: MutableList<FunctionMeta> = mutableListOf()
     private var returned = false
 
     private var isFirstBuildingCurrentFunction: Boolean = true
     private var currentFunctionId: Long = 0
     private var currentFunctionStart: Int = 0
     private var currentFunctionName: String = ""
+    private var currentFunctionVariablesLength: Int = 0
 
     private fun transfer(value: Long): List<Byte> {
         val byteCount = 8
@@ -71,8 +72,14 @@ class CodeConstructor {
         if (!returned) {
             throw IllegalArgumentException("Code is not returned.")
         }
-        functions.add(
-            Function(currentFunctionId, currentFunctionStart, codes.size, currentFunctionName)
+        functionMetas.add(
+            FunctionMeta(
+                currentFunctionId,
+                currentFunctionStart,
+                codes.size,
+                currentFunctionVariablesLength,
+                currentFunctionName
+            )
         )
         return codes
     }
@@ -104,21 +111,28 @@ class CodeConstructor {
         TODO()
     }
 
-    fun getFunctions(): List<Function> {
-        return functions
+    fun getFunctions(): List<FunctionMeta> {
+        return functionMetas
     }
 
-    fun function(id: Long, name: String): CodeConstructor {
+    fun function(id: Long, name: String, length: Int = 0): CodeConstructor {
         if (isFirstBuildingCurrentFunction) {
             isFirstBuildingCurrentFunction = false
         } else {
-            functions.add(
-                Function(currentFunctionId, currentFunctionStart, codes.size, currentFunctionName)
+            functionMetas.add(
+                FunctionMeta(
+                    currentFunctionId,
+                    currentFunctionStart,
+                    codes.size,
+                    currentFunctionVariablesLength,
+                    currentFunctionName
+                )
             )
         }
         currentFunctionId = id
         currentFunctionStart = codes.size
         currentFunctionName = name
+        currentFunctionVariablesLength = length
         return this
     }
 }
