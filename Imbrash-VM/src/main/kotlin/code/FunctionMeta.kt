@@ -19,7 +19,7 @@ data class FunctionMeta(
     }
 
     override fun toString(): String {
-        return "FunctionMeta at [$start, $end) Meta(Identifier=$id; Name=$name, VariableLength=$variableLength)"
+        return "FunctionMeta at [$start, $end) Meta(Identifier=$id; Name=\"$name\", VariableLength=$variableLength)"
     }
 }
 

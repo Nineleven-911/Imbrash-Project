@@ -195,7 +195,8 @@ class ExecutionUnit(
                 }
                 Bytecode.IF -> {
                     val type = code[executing.pc++]
-                    val num = executing.pop(4).toLong().toInt()
+                    println(executing)
+                    val num = executing.getValues(4).toLong().toInt()
                     val offset =
                         ((code[executing.pc++].toInt() shl 24) and 0xFF000000.toInt()) +
                                 ((code[executing.pc++].toInt() shl 16) and 0x00FF0000) +
@@ -209,7 +210,7 @@ class ExecutionUnit(
                         If.GT -> if (num > 0) executing.pc = offset
                         If.LE -> if (num <= 0) executing.pc = offset
                         in If.Integer.CMP_EQ..If.Integer.CMP_LE -> {
-                            val num2 = executing.pop(4).toLong().toInt()
+                            val num2 = executing.getValues(8, executing.size() - 4).toLong().toInt()
                             when (type) {
                                 If.Integer.CMP_EQ -> if (num == num2) executing.pc = offset
                                 If.Integer.CMP_NE -> if (num != num2) executing.pc = offset

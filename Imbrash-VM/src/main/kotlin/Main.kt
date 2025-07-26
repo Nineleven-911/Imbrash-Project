@@ -14,17 +14,17 @@ fun main(args: Array<String>) {
     val constructor = (CodeConstructor()
         .function(0, "main")
         .add(
-            Bytecode.PUSH, 0, 3,
+            Bytecode.PUSH, 0, 10,
             Bytecode.CALL, 0, 0, 0, 0, 0, 0, 0, 1, 1,
             Bytecode.PRT, 0,
-        ).ret(0).function(1, "fibonacci")
-        .add(
-            Bytecode.PUSH, 0, 2,
-            Bytecode.IF, If.LE, 0, 0, 0, 27,
+        ).ret(0).function(1, "rec").add(
             Bytecode.PUSH, 0, 1,
+            Bytecode.IF, If.Integer.CMP_LE, 0, 0, 0, 40,
             Bytecode.BINARY_OP, BinaryOperator.SUB,
+            Bytecode.CALL, 0, 0, 0, 0, 0, 0, 0, 1, 1,
+            Bytecode.RET, 0,
             Bytecode.PUSH, 0, 1,
-            Bytecode.RET, 1,
+            Bytecode.RET, 1
         )
     )
 

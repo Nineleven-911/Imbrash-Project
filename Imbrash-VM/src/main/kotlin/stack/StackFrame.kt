@@ -71,7 +71,11 @@ class StackFrame(
      * @return [ByteArray]
      */
     fun getValues(size: Int): ByteArray {
-        return operandStack.slice(stackPtr - size until stackPtr).toByteArray()
+        return operandStack.slice((size() - size) until stackPtr).toByteArray()
+    }
+
+    fun getValues(size: Int, from: Int = size()): ByteArray {
+        return operandStack.slice((from - size) until from).toByteArray()
     }
 
 
